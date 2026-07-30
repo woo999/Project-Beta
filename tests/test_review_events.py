@@ -1,7 +1,13 @@
+import tempfile
 import unittest
 from datetime import date
+from pathlib import Path
 
-from beta_backtest.review_events import ReviewEvent, apply_review_events
+from beta_backtest.review_events import (
+    ReviewEvent,
+    apply_review_events,
+    load_review_events_csv,
+)
 
 
 SOURCE = "https://taiwanindex.com.tw/news/example"
@@ -65,6 +71,34 @@ class ReviewEventTests(unittest.TestCase):
                 ],
                 as_of=date(2025, 6, 24),
             )
+
+    def test_loads_strict_review_event_csv(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.csv"
+            path.write_text(
+                "universe,symbol,action,announced_on,effective_on,source_url\n"
+                "TW50,2383,add,2025-06-06,2025-06-23,"
+                "https://taiwanindex.com.tw/news/362\n",
+                encoding="utf-8",
+            )
+            events = load_review_events_csv(path)
+        self.assertEqual(events[0].symbol, "2383")
+
+    def test_rejects_duplicate_review_event(self) -> None:
+        row = (
+            "TW50,2383,add,2025-06-06,2025-06-23,"
+            "https://taiwanindex.com.tw/news/362\n"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "events.csv"
+            path.write_text(
+                "universe,symbol,action,announced_on,effective_on,source_url\n"
+                + row
+                + row,
+                encoding="utf-8",
+            )
+            with self.assertRaises(ValueError):
+                load_review_events_csv(path)
 
 
 if __name__ == "__main__":
