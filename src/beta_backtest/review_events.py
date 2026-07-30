@@ -18,6 +18,7 @@ EVENT_COLUMNS = {
     "effective_on",
     "source_url",
 }
+SNAPSHOT_COLUMNS = {"universe", "symbol", "as_of", "source_url"}
 EXPECTED_UNIVERSE_SIZES = {"TW50": 50, "TWMC100": 100}
 
 
@@ -29,6 +30,44 @@ class ReviewEvent:
     announced_on: date
     effective_on: date
     source_url: str
+
+
+def load_baseline_snapshot_csv(
+    path: str | Path,
+) -> tuple[date, dict[str, set[str]]]:
+    """Load a dated, sourced full constituent snapshot."""
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None or set(reader.fieldnames) != SNAPSHOT_COLUMNS:
+            raise ValueError(
+                "snapshot CSV columns must be exactly: "
+                + ", ".join(sorted(SNAPSHOT_COLUMNS))
+            )
+        rows = list(reader)
+
+    dates: set[date] = set()
+    state: dict[str, set[str]] = {}
+    for row in rows:
+        universe = row["universe"].strip().upper()
+        symbol = row["symbol"].strip()
+        source_url = row["source_url"].strip()
+        if universe not in SUPPORTED_UNIVERSES:
+            raise ValueError(f"unsupported universe: {universe}")
+        if not symbol or not source_url:
+            raise ValueError("symbol and source_url are required")
+        try:
+            dates.add(date.fromisoformat(row["as_of"]))
+        except ValueError as error:
+            raise ValueError("dates must use YYYY-MM-DD") from error
+        members = state.setdefault(universe, set())
+        if symbol in members:
+            raise ValueError(f"duplicate snapshot member: {universe}/{symbol}")
+        members.add(symbol)
+
+    if len(dates) != 1:
+        raise ValueError("snapshot rows must share exactly one as_of date")
+    validate_universe_sizes(state)
+    return dates.pop(), state
 
 
 def load_review_events_csv(path: str | Path) -> list[ReviewEvent]:
