@@ -178,6 +178,33 @@ def apply_review_events(
     return state
 
 
+def reconstruct_membership_timeline(
+    baseline_as_of: date,
+    baseline: dict[str, set[str]],
+    events: Iterable[ReviewEvent],
+) -> dict[date, dict[str, set[str]]]:
+    """Apply complete event batches and validate membership after every change."""
+    validate_universe_sizes(baseline)
+    batches: dict[date, list[ReviewEvent]] = {}
+    for event in events:
+        _validate_event(event)
+        if event.effective_on <= baseline_as_of:
+            raise ValueError("event effective date must be after baseline snapshot")
+        batches.setdefault(event.effective_on, []).append(event)
+
+    state = {universe: set(symbols) for universe, symbols in baseline.items()}
+    timeline: dict[date, dict[str, set[str]]] = {}
+    for effective_on in sorted(batches):
+        batch = batches[effective_on]
+        validate_balanced_reviews(batch)
+        state = apply_review_events(state, batch, as_of=effective_on)
+        validate_universe_sizes(state)
+        timeline[effective_on] = {
+            universe: set(symbols) for universe, symbols in state.items()
+        }
+    return timeline
+
+
 def _validate_event(event: ReviewEvent) -> None:
     if event.universe not in SUPPORTED_UNIVERSES:
         raise ValueError(f"unsupported universe: {event.universe}")
