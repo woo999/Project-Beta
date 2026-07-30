@@ -7,6 +7,7 @@ from beta_backtest.review_events import (
     ReviewEvent,
     apply_review_events,
     load_review_events_csv,
+    validate_balanced_reviews,
 )
 
 
@@ -99,6 +100,18 @@ class ReviewEventTests(unittest.TestCase):
             )
             with self.assertRaises(ValueError):
                 load_review_events_csv(path)
+
+    def test_accepts_balanced_review_batch(self) -> None:
+        validate_balanced_reviews(
+            [
+                self.event(symbol="2383", action="add"),
+                self.event(symbol="3037", action="remove"),
+            ]
+        )
+
+    def test_rejects_incomplete_review_batch(self) -> None:
+        with self.assertRaises(ValueError):
+            validate_balanced_reviews([self.event(symbol="2383", action="add")])
 
 
 if __name__ == "__main__":
