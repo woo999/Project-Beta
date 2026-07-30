@@ -1,13 +1,23 @@
 """Apply official index review events without leaking future membership."""
 
+import csv
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 from typing import Iterable, Literal
 
 from .universe import SUPPORTED_UNIVERSES
 
 
 ReviewAction = Literal["add", "remove"]
+EVENT_COLUMNS = {
+    "universe",
+    "symbol",
+    "action",
+    "announced_on",
+    "effective_on",
+    "source_url",
+}
 
 
 @dataclass(frozen=True)
@@ -18,6 +28,41 @@ class ReviewEvent:
     announced_on: date
     effective_on: date
     source_url: str
+
+
+def load_review_events_csv(path: str | Path) -> list[ReviewEvent]:
+    """Load auditable index-review deltas from a strict CSV schema."""
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None or set(reader.fieldnames) != EVENT_COLUMNS:
+            raise ValueError(
+                "CSV columns must be exactly: " + ", ".join(sorted(EVENT_COLUMNS))
+            )
+        events = [_parse_event(row) for row in reader]
+    if len(events) != len(
+        {
+            (event.universe, event.symbol, event.action, event.effective_on)
+            for event in events
+        }
+    ):
+        raise ValueError("duplicate review event")
+    return events
+
+
+def _parse_event(row: dict[str, str]) -> ReviewEvent:
+    try:
+        event = ReviewEvent(
+            universe=row["universe"].strip().upper(),
+            symbol=row["symbol"].strip(),
+            action=row["action"].strip().lower(),  # type: ignore[arg-type]
+            announced_on=date.fromisoformat(row["announced_on"]),
+            effective_on=date.fromisoformat(row["effective_on"]),
+            source_url=row["source_url"].strip(),
+        )
+    except ValueError as error:
+        raise ValueError("dates must use YYYY-MM-DD") from error
+    _validate_event(event)
+    return event
 
 
 def apply_review_events(
