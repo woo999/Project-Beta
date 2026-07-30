@@ -8,6 +8,7 @@ from beta_backtest.review_events import (
     apply_review_events,
     load_baseline_snapshot_csv,
     load_review_events_csv,
+    reconstruct_membership_timeline,
     validate_balanced_reviews,
     validate_universe_sizes,
 )
@@ -17,6 +18,35 @@ SOURCE = "https://taiwanindex.com.tw/news/example"
 
 
 class ReviewEventTests(unittest.TestCase):
+    def test_reconstructs_and_validates_membership_timeline(self) -> None:
+        baseline = {
+            "TW50": {f"T{i:03d}" for i in range(50)},
+            "TWMC100": {f"M{i:03d}" for i in range(100)},
+        }
+        timeline = reconstruct_membership_timeline(
+            date(2025, 1, 2),
+            baseline,
+            [
+                self.event(symbol="T000", action="remove"),
+                self.event(symbol="T999", action="add"),
+            ],
+        )
+
+        self.assertNotIn("T000", timeline[date(2025, 6, 23)]["TW50"])
+        self.assertIn("T999", timeline[date(2025, 6, 23)]["TW50"])
+
+    def test_rejects_event_not_after_baseline(self) -> None:
+        baseline = {
+            "TW50": {f"T{i:03d}" for i in range(50)},
+            "TWMC100": {f"M{i:03d}" for i in range(100)},
+        }
+        with self.assertRaisesRegex(ValueError, "after baseline"):
+            reconstruct_membership_timeline(
+                date(2025, 6, 23),
+                baseline,
+                [self.event(symbol="T000", action="remove")],
+            )
+
     def test_loads_complete_baseline_snapshot(self) -> None:
         rows = [
             "universe,symbol,as_of,source_url",
