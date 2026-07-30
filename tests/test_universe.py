@@ -5,7 +5,7 @@ from pathlib import Path
 from beta_backtest.universe import load_membership_csv
 
 
-HEADER = "symbol,effective_from,effective_to,announced_on,source_url\n"
+HEADER = "universe,symbol,effective_from,effective_to,announced_on,source_url\n"
 
 
 class UniverseImportTests(unittest.TestCase):
@@ -18,25 +18,41 @@ class UniverseImportTests(unittest.TestCase):
 
     def test_loads_auditable_membership(self) -> None:
         path = self.write_csv(
-            "2330,2024-01-02,2024-06-30,2023-12-15,https://example.test/review\n"
+            "TW50,2330,2024-01-02,2024-06-30,2023-12-15,https://example.test/review\n"
         )
         records = load_membership_csv(path)
+        self.assertEqual(records[0].universe, "TW50")
         self.assertEqual(records[0].membership.symbol, "2330")
 
     def test_rejects_announcements_made_after_effective_date(self) -> None:
         path = self.write_csv(
-            "2330,2024-01-02,,2024-01-03,https://example.test/review\n"
+            "TW50,2330,2024-01-02,,2024-01-03,https://example.test/review\n"
         )
         with self.assertRaises(ValueError):
             load_membership_csv(path)
 
     def test_rejects_overlapping_periods_for_the_same_symbol(self) -> None:
         path = self.write_csv(
-            "2330,2024-01-02,2024-06-30,2023-12-15,https://example.test/one\n"
-            "2330,2024-06-01,,2024-05-15,https://example.test/two\n"
+            "TW50,2330,2024-01-02,2024-06-30,2023-12-15,https://example.test/one\n"
+            "TW50,2330,2024-06-01,,2024-05-15,https://example.test/two\n"
         )
         with self.assertRaises(ValueError):
             load_membership_csv(path)
+
+    def test_rejects_unknown_universe(self) -> None:
+        path = self.write_csv(
+            "UNKNOWN,2330,2024-01-02,,2023-12-15,https://example.test/review\n"
+        )
+        with self.assertRaises(ValueError):
+            load_membership_csv(path)
+
+    def test_allows_same_symbol_in_distinct_universes(self) -> None:
+        path = self.write_csv(
+            "TW50,2330,2024-01-02,,2023-12-15,https://example.test/one\n"
+            "TWMC100,2330,2024-01-02,,2023-12-15,https://example.test/two\n"
+        )
+        records = load_membership_csv(path)
+        self.assertEqual(len(records), 2)
 
 
 if __name__ == "__main__":
