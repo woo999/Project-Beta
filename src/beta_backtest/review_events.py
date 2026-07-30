@@ -4,7 +4,7 @@ import csv
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
-from typing import Iterable, Literal
+from typing import Collection, Iterable, Literal, Mapping
 
 from .universe import SUPPORTED_UNIVERSES
 
@@ -18,6 +18,7 @@ EVENT_COLUMNS = {
     "effective_on",
     "source_url",
 }
+EXPECTED_UNIVERSE_SIZES = {"TW50": 50, "TWMC100": 100}
 
 
 @dataclass(frozen=True)
@@ -63,6 +64,26 @@ def validate_balanced_reviews(events: Iterable[ReviewEvent]) -> None:
             raise ValueError(
                 f"unbalanced review for {universe} on {effective_on}: "
                 f"{bucket['add']} adds, {bucket['remove']} removes"
+            )
+
+
+def validate_universe_sizes(
+    state: Mapping[str, Collection[str]],
+    expected_sizes: Mapping[str, int] = EXPECTED_UNIVERSE_SIZES,
+) -> None:
+    """Reject incomplete or drifted constituent snapshots."""
+    unknown = set(state) - set(expected_sizes)
+    if unknown:
+        raise ValueError(f"unknown universes in state: {sorted(unknown)}")
+
+    for universe, expected_size in expected_sizes.items():
+        if universe not in state:
+            raise ValueError(f"missing universe in state: {universe}")
+        actual_size = len(state[universe])
+        if actual_size != expected_size:
+            raise ValueError(
+                f"{universe} must contain {expected_size} constituents, "
+                f"got {actual_size}"
             )
 
 
