@@ -8,6 +8,7 @@ from beta_backtest.review_events import (
     apply_review_events,
     load_review_events_csv,
     validate_balanced_reviews,
+    validate_universe_sizes,
 )
 
 
@@ -15,6 +16,23 @@ SOURCE = "https://taiwanindex.com.tw/news/example"
 
 
 class ReviewEventTests(unittest.TestCase):
+    def test_validates_expected_universe_sizes(self) -> None:
+        validate_universe_sizes(
+            {
+                "TW50": {f"T{i:03d}" for i in range(50)},
+                "TWMC100": {f"M{i:03d}" for i in range(100)},
+            }
+        )
+
+    def test_rejects_universe_size_drift(self) -> None:
+        with self.assertRaisesRegex(ValueError, "TW50 must contain 50"):
+            validate_universe_sizes(
+                {
+                    "TW50": {f"T{i:03d}" for i in range(49)},
+                    "TWMC100": {f"M{i:03d}" for i in range(100)},
+                }
+            )
+
     def event(
         self,
         *,
