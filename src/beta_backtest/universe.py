@@ -9,6 +9,7 @@ from .point_in_time import UniverseMembership
 
 
 REQUIRED_COLUMNS = {
+    "universe",
     "symbol",
     "effective_from",
     "effective_to",
@@ -16,9 +17,12 @@ REQUIRED_COLUMNS = {
     "source_url",
 }
 
+SUPPORTED_UNIVERSES = {"TW50", "TWMC100"}
+
 
 @dataclass(frozen=True)
 class MembershipEvidence:
+    universe: str
     membership: UniverseMembership
     announced_on: date
     source_url: str
@@ -46,6 +50,11 @@ def _parse_record(row: dict[str, str]) -> MembershipEvidence:
         announced_on = date.fromisoformat(row["announced_on"])
     except ValueError as error:
         raise ValueError("dates must use YYYY-MM-DD") from error
+    universe = row["universe"].strip().upper()
+    if universe not in SUPPORTED_UNIVERSES:
+        raise ValueError(
+            "universe must be one of: " + ", ".join(sorted(SUPPORTED_UNIVERSES))
+        )
     if not row["symbol"] or not row["source_url"]:
         raise ValueError("symbol and source_url are required")
     if announced_on > effective_from:
@@ -53,6 +62,7 @@ def _parse_record(row: dict[str, str]) -> MembershipEvidence:
     if effective_to is not None and effective_to < effective_from:
         raise ValueError("effective_to cannot precede effective_from")
     return MembershipEvidence(
+        universe=universe,
         membership=UniverseMembership(
             symbol=row["symbol"],
             effective_from=effective_from,
@@ -64,11 +74,14 @@ def _parse_record(row: dict[str, str]) -> MembershipEvidence:
 
 
 def _validate_non_overlapping(records: list[MembershipEvidence]) -> None:
-    by_symbol: dict[str, list[UniverseMembership]] = {}
+    by_symbol: dict[tuple[str, str], list[UniverseMembership]] = {}
     for record in records:
-        by_symbol.setdefault(record.membership.symbol, []).append(record.membership)
-    for symbol, memberships in by_symbol.items():
+        key = (record.universe, record.membership.symbol)
+        by_symbol.setdefault(key, []).append(record.membership)
+    for (universe, symbol), memberships in by_symbol.items():
         ordered = sorted(memberships, key=lambda item: item.effective_from)
         for previous, current in zip(ordered, ordered[1:]):
             if previous.effective_to is None or current.effective_from <= previous.effective_to:
-                raise ValueError(f"overlapping membership periods for {symbol}")
+                raise ValueError(
+                    f"overlapping membership periods for {universe}/{symbol}"
+                )
