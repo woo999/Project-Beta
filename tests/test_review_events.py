@@ -19,6 +19,41 @@ SOURCE = "https://taiwanindex.com.tw/news/example"
 
 
 class ReviewEventTests(unittest.TestCase):
+    def test_rejects_untraceable_event_source(self) -> None:
+        with self.assertRaisesRegex(ValueError, "HTTPS URL"):
+            apply_review_events(
+                {"TW50": set()},
+                [
+                    ReviewEvent(
+                        universe="TW50",
+                        symbol="2383",
+                        action="add",
+                        announced_on=date(2025, 6, 6),
+                        effective_on=date(2025, 6, 23),
+                        source_url="official announcement",
+                    )
+                ],
+                as_of=date(2025, 6, 23),
+            )
+
+    def test_rejects_untraceable_snapshot_source(self) -> None:
+        rows = [
+            "universe,symbol,as_of,source_url",
+            *[
+                f"TW50,T{i:03d},2025-01-02,http://example.test/snapshot"
+                for i in range(50)
+            ],
+            *[
+                f"TWMC100,M{i:03d},2025-01-02,http://example.test/snapshot"
+                for i in range(100)
+            ],
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "snapshot.csv"
+            path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "HTTPS URL"):
+                load_baseline_snapshot_csv(path)
+
     def test_accepts_exact_snapshot_match(self) -> None:
         state = {
             "TW50": {f"T{i:03d}" for i in range(50)},
