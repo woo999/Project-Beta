@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 from typing import Collection, Iterable, Literal, Mapping
+from urllib.parse import urlparse
 
 from .universe import SUPPORTED_UNIVERSES
 
@@ -53,8 +54,9 @@ def load_baseline_snapshot_csv(
         source_url = row["source_url"].strip()
         if universe not in SUPPORTED_UNIVERSES:
             raise ValueError(f"unsupported universe: {universe}")
-        if not symbol or not source_url:
-            raise ValueError("symbol and source_url are required")
+        if not symbol:
+            raise ValueError("symbol is required")
+        _validate_source_url(source_url)
         try:
             dates.add(date.fromisoformat(row["as_of"]))
         except ValueError as error:
@@ -227,9 +229,16 @@ def reconstruct_membership_timeline(
 def _validate_event(event: ReviewEvent) -> None:
     if event.universe not in SUPPORTED_UNIVERSES:
         raise ValueError(f"unsupported universe: {event.universe}")
-    if not event.symbol or not event.source_url:
-        raise ValueError("symbol and source_url are required")
+    if not event.symbol:
+        raise ValueError("symbol is required")
+    _validate_source_url(event.source_url)
     if event.action not in {"add", "remove"}:
         raise ValueError("action must be add or remove")
     if event.announced_on > event.effective_on:
         raise ValueError("announcement cannot be after effective date")
+
+
+def _validate_source_url(source_url: str) -> None:
+    parsed = urlparse(source_url)
+    if parsed.scheme != "https" or not parsed.hostname:
+        raise ValueError("source_url must be a traceable HTTPS URL")
