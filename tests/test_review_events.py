@@ -6,6 +6,7 @@ from pathlib import Path
 from beta_backtest.review_events import (
     ReviewEvent,
     apply_review_events,
+    load_baseline_snapshot_csv,
     load_review_events_csv,
     validate_balanced_reviews,
     validate_universe_sizes,
@@ -16,6 +17,45 @@ SOURCE = "https://taiwanindex.com.tw/news/example"
 
 
 class ReviewEventTests(unittest.TestCase):
+    def test_loads_complete_baseline_snapshot(self) -> None:
+        rows = [
+            "universe,symbol,as_of,source_url",
+            *[
+                f"TW50,T{i:03d},2025-01-02,{SOURCE}"
+                for i in range(50)
+            ],
+            *[
+                f"TWMC100,M{i:03d},2025-01-02,{SOURCE}"
+                for i in range(100)
+            ],
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "snapshot.csv"
+            path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+            as_of, state = load_baseline_snapshot_csv(path)
+
+        self.assertEqual(as_of, date(2025, 1, 2))
+        self.assertEqual(len(state["TW50"]), 50)
+        self.assertEqual(len(state["TWMC100"]), 100)
+
+    def test_rejects_incomplete_baseline_snapshot(self) -> None:
+        rows = [
+            "universe,symbol,as_of,source_url",
+            *[
+                f"TW50,T{i:03d},2025-01-02,{SOURCE}"
+                for i in range(49)
+            ],
+            *[
+                f"TWMC100,M{i:03d},2025-01-02,{SOURCE}"
+                for i in range(100)
+            ],
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "snapshot.csv"
+            path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "TW50 must contain 50"):
+                load_baseline_snapshot_csv(path)
+
     def test_validates_expected_universe_sizes(self) -> None:
         validate_universe_sizes(
             {
