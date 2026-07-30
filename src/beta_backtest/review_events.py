@@ -126,6 +126,25 @@ def validate_universe_sizes(
             )
 
 
+def validate_snapshot_match(
+    reconstructed: Mapping[str, Collection[str]],
+    observed: Mapping[str, Collection[str]],
+) -> None:
+    """Require reconstructed membership to exactly match an observed snapshot."""
+    validate_universe_sizes(reconstructed)
+    validate_universe_sizes(observed)
+    for universe in EXPECTED_UNIVERSE_SIZES:
+        expected_members = set(observed[universe])
+        actual_members = set(reconstructed[universe])
+        missing = sorted(expected_members - actual_members)
+        unexpected = sorted(actual_members - expected_members)
+        if missing or unexpected:
+            raise ValueError(
+                f"snapshot mismatch for {universe}: "
+                f"missing={missing}, unexpected={unexpected}"
+            )
+
+
 def _parse_event(row: dict[str, str]) -> ReviewEvent:
     try:
         event = ReviewEvent(
