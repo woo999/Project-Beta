@@ -10,6 +10,7 @@ from beta_backtest.review_events import (
     load_review_events_csv,
     reconstruct_membership_timeline,
     validate_balanced_reviews,
+    validate_snapshot_match,
     validate_universe_sizes,
 )
 
@@ -18,6 +19,27 @@ SOURCE = "https://taiwanindex.com.tw/news/example"
 
 
 class ReviewEventTests(unittest.TestCase):
+    def test_accepts_exact_snapshot_match(self) -> None:
+        state = {
+            "TW50": {f"T{i:03d}" for i in range(50)},
+            "TWMC100": {f"M{i:03d}" for i in range(100)},
+        }
+        validate_snapshot_match(state, state)
+
+    def test_reports_snapshot_membership_difference(self) -> None:
+        observed = {
+            "TW50": {f"T{i:03d}" for i in range(50)},
+            "TWMC100": {f"M{i:03d}" for i in range(100)},
+        }
+        reconstructed = {
+            "TW50": (observed["TW50"] - {"T000"}) | {"T999"},
+            "TWMC100": set(observed["TWMC100"]),
+        }
+        with self.assertRaisesRegex(
+            ValueError, r"missing=\['T000'\].*unexpected=\['T999'\]"
+        ):
+            validate_snapshot_match(reconstructed, observed)
+
     def test_reconstructs_and_validates_membership_timeline(self) -> None:
         baseline = {
             "TW50": {f"T{i:03d}" for i in range(50)},
