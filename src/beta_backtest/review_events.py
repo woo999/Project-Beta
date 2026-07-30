@@ -49,6 +49,23 @@ def load_review_events_csv(path: str | Path) -> list[ReviewEvent]:
     return events
 
 
+def validate_balanced_reviews(events: Iterable[ReviewEvent]) -> None:
+    """Reject incomplete review batches whose add/remove counts do not match."""
+    counts: dict[tuple[str, date], dict[str, int]] = {}
+    for event in events:
+        _validate_event(event)
+        bucket = counts.setdefault(
+            (event.universe, event.effective_on), {"add": 0, "remove": 0}
+        )
+        bucket[event.action] += 1
+    for (universe, effective_on), bucket in counts.items():
+        if bucket["add"] != bucket["remove"]:
+            raise ValueError(
+                f"unbalanced review for {universe} on {effective_on}: "
+                f"{bucket['add']} adds, {bucket['remove']} removes"
+            )
+
+
 def _parse_event(row: dict[str, str]) -> ReviewEvent:
     try:
         event = ReviewEvent(
