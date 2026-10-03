@@ -17,7 +17,7 @@ STATUS_PATH = ROOT / "docs" / "data" / "market_status.json"
 API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
 BACKFILL_DAYS = 400
-RANGES = (20, 60, 120, 250)
+RANGES = (5, 10, 20, 60, 120, 250)
 # Daily rankings archive enabled.
 # Leader memory archive enabled.
 
