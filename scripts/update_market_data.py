@@ -196,6 +196,7 @@ def build_leader_memory(groups, daily_rankings, histories):
             "top1_hit": "stock ranks #1 by daily return inside the group on an activation day",
             "note": "close-to-close daily data only; this does not measure intraday first mover timing",
             "follow_through": "after a stock is top 3 on an activation day, measure close-to-close return 1/3/5 market trading days later; missing future prices are excluded",
+            "group_follow_through": "for each activation event, average constituent close-to-close returns from activation-day close to 1/3/5 market trading days later; then average those event returns and report positive-event win rate",
         },
         "ranges": {},
     }
@@ -232,6 +233,7 @@ def build_leader_memory(groups, daily_rankings, histories):
             }
 
             events = []
+            group_follow_returns = {"1": [], "3": [], "5": []}
             for day in days:
                 gr = next((x for x in day.get("groups", []) if x.get("name") == group_name), None)
                 if not gr:
@@ -248,6 +250,35 @@ def build_leader_memory(groups, daily_rankings, histories):
                     continue
 
                 leaders = gr.get("leaders", [])[:3]
+                event_date = day.get("date")
+                event_pos = day_index.get(event_date)
+                event_group_follow = {}
+
+                if event_pos is not None:
+                    for horizon in (1, 3, 5):
+                        target_pos = event_pos + horizon
+                        if target_pos >= len(day_dates):
+                            continue
+                        target_date = day_dates[target_pos]
+                        member_returns = []
+                        for code in member_meta:
+                            base_close = close_by_code_date.get(code, {}).get(event_date)
+                            target_close = close_by_code_date.get(code, {}).get(target_date)
+                            if (
+                                isinstance(base_close, (int, float)) and base_close > 0
+                                and isinstance(target_close, (int, float)) and target_close > 0
+                            ):
+                                member_returns.append((target_close / base_close - 1) * 100)
+
+                        if member_returns:
+                            group_ret = round(sum(member_returns) / len(member_returns), 4)
+                            group_follow_returns[str(horizon)].append(group_ret)
+                            event_group_follow[str(horizon)] = {
+                                "return": group_ret,
+                                "member_samples": len(member_returns),
+                                "target_date": target_date,
+                            }
+
                 events.append({
                     "date": day["date"],
                     "rank": gr.get("rank"),
@@ -255,6 +286,7 @@ def build_leader_memory(groups, daily_rankings, histories):
                     "up_count": gr.get("up_count"),
                     "priced_members": priced,
                     "leaders": leaders,
+                    "group_follow_through": event_group_follow,
                 })
 
                 for i, leader in enumerate(leaders):
@@ -310,9 +342,20 @@ def build_leader_memory(groups, daily_rankings, histories):
                 x["avg_pct_when_leader"] if x["avg_pct_when_leader"] is not None else -999999
             ), reverse=True)
 
+            group_follow_through = {}
+            for horizon in ("1", "3", "5"):
+                vals = group_follow_returns.get(horizon, [])
+                samples = len(vals)
+                group_follow_through[horizon] = {
+                    "samples": samples,
+                    "avg_return": round(sum(vals) / samples, 4) if samples else None,
+                    "win_rate": round(sum(1 for v in vals if v > 0) / samples * 100, 2) if samples else None,
+                }
+
             group_out.append({
                 "name": group_name,
                 "activation_days": activation_days,
+                "group_follow_through": group_follow_through,
                 "events": events,
                 "stocks": stocks,
             })
