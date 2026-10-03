@@ -46,7 +46,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .on{background:#12303a;color:#eef7fa}
 .empty{padding:12px;border:1px dashed #23414c;border-radius:9px;color:#718791;font-size:11px;line-height:1.6}
 .foot{color:#657b84;font-size:10px;text-align:right;margin-top:10px}
-.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
+.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.rankWrap{overflow-x:auto}.rankTable{width:100%;border-collapse:collapse;min-width:820px;font-size:11px}.rankTable th,.rankTable td{padding:8px 7px;border-bottom:1px solid #17303a;text-align:center;white-space:nowrap}.rankTable th:first-child,.rankTable td:first-child{text-align:left;position:sticky;left:0;background:#0d181d;z-index:1}.rankTable th{color:#8ba1ab;font-weight:600}.rankTable td:first-child{font-weight:800;color:#e8f1f4}.rankUp{color:#44d5ff;font-weight:800}.rankDown{color:#ff9b6a;font-weight:800}.rankSame{color:#718791}.rankNow{font-weight:900}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
 @media(max-width:1000px){.heat{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:850px){.top{align-items:flex-start;flex-direction:column}.k{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.heat{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.heat{grid-template-columns:1fr}.member-grid{grid-template-columns:1fr}.memberData{grid-template-columns:1fr 1fr}}
@@ -75,6 +75,14 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
     <div class="c"><div class="mut">區間最強族群</div><div class="v" id="strongestGroup">載入中</div></div>
     <div class="c"><div class="mut">78 檔今日成交金額</div><div class="v" id="trackedMoney">載入中</div></div>
     <div class="c"><div class="mut">資料日期</div><div class="v" id="dataDate">載入中</div></div>
+  </div>
+
+  <div class="c" style="margin-bottom:10px">
+    <div class="title">
+      <b>族群強弱排名軌跡</b>
+      <span class="mut">名次越小越強 · ↑↓ 為相對前一週期的排名變化</span>
+    </div>
+    <div class="rankWrap" id="rankTrend"><div class="empty">載入中…</div></div>
   </div>
 
   <div class="grid">
@@ -182,6 +190,75 @@ function stockSummary(code){
     } : null;
   }
   return SUMMARY?.stocks?.[code]?.[String(selectedRange)] || null;
+}
+
+function buildRankMaps(){
+  const order = [250,120,60,20,10,5,1];
+  const maps = {};
+
+  for(const period of order){
+    const map = {};
+    if(period===1){
+      const day = latestDailyDay();
+      (day?.groups||[]).forEach(g=>{ map[g.name]=g.rank; });
+    }else{
+      const groups = SUMMARY?.ranges?.[String(period)]?.groups || [];
+      [...groups]
+        .filter(g=>Number.isFinite(g.avg_return))
+        .sort((a,b)=>b.avg_return-a.avg_return)
+        .forEach((g,i)=>{ map[g.name]=i+1; });
+    }
+    maps[String(period)] = map;
+  }
+  return {order,maps};
+}
+
+function rankCell(rank, prevRank, isToday=false){
+  if(!Number.isFinite(rank)) return '—';
+  let move='';
+  if(Number.isFinite(prevRank)){
+    const diff=prevRank-rank;
+    move = diff>0
+      ? ' <span class="rankUp">↑'+diff+'</span>'
+      : diff<0
+        ? ' <span class="rankDown">↓'+Math.abs(diff)+'</span>'
+        : ' <span class="rankSame">→</span>';
+  }
+  return '<span class="'+(isToday?'rankNow':'')+'">#'+rank+'</span>'+move;
+}
+
+function renderRankTrend(){
+  const box=document.getElementById('rankTrend');
+  if(!box) return;
+  if(!SUMMARY || !DAILY){
+    box.innerHTML='<div class="empty">排名資料載入中…</div>';
+    return;
+  }
+
+  const {order,maps}=buildRankMaps();
+  const labels={250:'1年',120:'120日',60:'60日',20:'20日',10:'10日',5:'5日',1:'今日'};
+  const rows=GROUPS.map(g=>{
+    const ranks=order.map(p=>maps[String(p)]?.[g.name] ?? null);
+    return {name:g.name,ranks};
+  }).sort((a,b)=>{
+    const ar=a.ranks[a.ranks.length-1] ?? 999;
+    const br=b.ranks[b.ranks.length-1] ?? 999;
+    return ar-br;
+  });
+
+  box.innerHTML='<table class="rankTable"><thead><tr><th>族群</th>'+
+    order.map(p=>'<th>'+labels[p]+'</th>').join('')+
+    '</tr></thead><tbody>'+
+    rows.map(r=>{
+      let prev=null;
+      const cells=r.ranks.map((rank,i)=>{
+        const cell=rankCell(rank,prev,order[i]===1);
+        if(Number.isFinite(rank)) prev=rank;
+        return '<td>'+cell+'</td>';
+      }).join('');
+      return '<tr><td>'+r.name+'</td>'+cells+'</tr>';
+    }).join('')+
+    '</tbody></table>';
 }
 
 function renderTop(){
@@ -437,11 +514,11 @@ async function loadData(){
       '資料日期：'+(SUMMARY.latest_date||'—')+'<br>'+
       '歷史起點：'+(status?.earliest_date||'—')+'<br>'+
       '成功：'+(status?.successes??'—')+' / '+(status?.requested_stocks??'—')+' 檔';
-    renderTop();renderHeat();renderLeaders();renderDailyRanks();renderLeaderMemory();
+    renderTop();renderHeat();renderLeaders();renderDailyRanks();renderLeaderMemory();renderRankTrend();
   }catch(err){
     document.getElementById('dataStatus').textContent='資料載入失敗，請稍後重新整理';
     document.getElementById('sourceInfo').textContent='summary.json 尚未部署完成或載入失敗。';
-    renderHeat();renderDailyRanks();renderLeaderMemory();
+    renderHeat();renderDailyRanks();renderLeaderMemory();renderRankTrend();
   }
 }
 
