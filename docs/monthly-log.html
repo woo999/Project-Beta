@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WOO LAB · 1個月實驗紀錄</title>
+<style>
+body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.a{max-width:1100px;margin:auto;padding:14px}.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.brand{font-size:22px;font-weight:900;letter-spacing:.08em}.sub,.mut{color:#8ba1ab;font-size:11px}
+a{color:#44d5ff;text-decoration:none}.c{border:1px solid #1c343e;background:#0d181d;border-radius:14px;padding:12px;margin-top:10px}
+.title{display:flex;justify-content:space-between;gap:8px;align-items:center}.title b{font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}.m{border:1px solid #18313a;border-radius:9px;padding:9px}.m b{display:block;font-size:16px}.m small{color:#8da2ab}
+.up{color:#ff6072}.down{color:#20dc92}.y{color:#ffc95c}.b{color:#44d5ff}
+.empty{padding:12px;border:1px dashed #23414c;border-radius:9px;color:#718791;font-size:11px;line-height:1.6}
+.trade{border:1px solid #21414c;border-radius:12px;padding:11px;margin-top:9px;background:#0a171d}
+.tradeHead{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.tradeName{font-weight:900;font-size:16px}.tag{border:1px solid #2b5664;border-radius:999px;padding:3px 7px;font-size:10px}
+.plan{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:9px}.box{border:1px solid #18313a;border-radius:8px;padding:8px;background:#09171c}.box small{color:#7f949d}.box b{display:block;margin-top:2px}
+table{width:100%;border-collapse:collapse;margin-top:9px;font-size:10px}th,td{text-align:left;padding:7px 6px;border-bottom:1px solid #17303a;white-space:nowrap}th{color:#7f949d;font-weight:600}
+.scroller{overflow-x:auto}.foot{color:#657b84;font-size:10px;text-align:right;margin-top:10px}
+@media(max-width:760px){.grid{grid-template-columns:1fr 1fr}.plan{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="a">
+  <div class="top">
+    <div><div class="brand">WOO LAB</div><div class="sub">1個月結構 · 實驗交易紀錄</div></div>
+    <a href="index.html">← 回 WOO FLOW</a>
+  </div>
+
+  <div class="c">
+    <div class="title"><b>固定策略規則</b><span class="mut">進場後不因結果改寫</span></div>
+    <div class="grid" id="rules"></div>
+  </div>
+
+  <div class="c">
+    <div class="title"><b>統計摘要</b><span class="mut">只算已結束交易</span></div>
+    <div class="grid" id="summary"></div>
+  </div>
+
+  <div class="c">
+    <div class="title"><b>交易紀錄</b><span class="mut" id="updated">載入中…</span></div>
+    <div id="trades"><div class="empty">載入中…</div></div>
+  </div>
+
+  <div class="foot">WOO LAB · 市場快照每日收盤自動保存 · 人為成交與出場需實際回報</div>
+</div>
+<script>
+const fmtPct=v=>Number.isFinite(v)?(v>0?'+':'')+v.toFixed(2)+'%':'—';
+const cls=v=>Number.isFinite(v)?(v>0?'up':v<0?'down':''):'';
+const money=v=>Number.isFinite(v)?v.toLocaleString('zh-TW',{maximumFractionDigits:2}):'—';
+
+function renderRules(strategy){
+  const box=document.getElementById('rules');
+  box.innerHTML=[
+    ['目標持有',(strategy.target_holding_days||[]).join('–')+' 交易日'],
+    ['最長持有',(strategy.max_holding_days??'—')+' 交易日'],
+    ['硬停損',fmtPct(strategy.hard_stop_pct)],
+    ['+10%後', '至少把風險拉回成本附近'],
+    ['分批停利',(strategy.partial_take_profit_pct||[]).join('–')+'%'],
+    ['剩餘部位','最高收盤回撤 '+Math.abs(strategy.trailing_from_peak_pct||0)+'%']
+  ].map(x=>'<div class="m"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('');
+}
+
+function renderSummary(trades){
+  const closed=trades.filter(t=>t.status==='CLOSED' && Number.isFinite(t.exit?.realized_return_pct));
+  const wins=closed.filter(t=>t.exit.realized_return_pct>0);
+  const avg=closed.length?closed.reduce((a,t)=>a+t.exit.realized_return_pct,0)/closed.length:null;
+  const hold=closed.filter(t=>Number.isFinite(t.exit?.holding_sessions));
+  const avgHold=hold.length?hold.reduce((a,t)=>a+t.exit.holding_sessions,0)/hold.length:null;
+  document.getElementById('summary').innerHTML=[
+    ['已完成',closed.length+' 筆'],['勝率',closed.length?(wins.length/closed.length*100).toFixed(1)+'%':'—'],
+    ['平均報酬',fmtPct(avg)],['平均持有',Number.isFinite(avgHold)?avgHold.toFixed(1)+' 日':'—']
+  ].map(x=>'<div class="m"><small>'+x[0]+'</small><b>'+x[1]+'</b></div>').join('');
+}
+
+function renderTrade(t){
+  const snaps=[...(t.snapshots||[])].reverse();
+  const entry=t.entry||{}, pre=t.pre_entry||{}, exit=t.exit||{};
+  const latest=snaps[0]||{};
+  const executions=t.executions||[];
+  const rows=snaps.map(s=>'<tr>'+
+    '<td>'+s.date+'</td>'+
+    '<td class="'+cls(s.unrealized_return_pct)+'">'+fmtPct(s.unrealized_return_pct)+'</td>'+
+    '<td>'+money(s.close)+'</td>'+
+    '<td>'+((s.sector||{}).one_month_state||'—')+'</td>'+
+    '<td>#'+(((s.sector||{}).ranks||{})['60']??'—')+'</td>'+
+    '<td>#'+(((s.sector||{}).ranks||{})['20']??'—')+'</td>'+
+    '<td>#'+(((s.sector||{}).ranks||{})['10']??'—')+'</td>'+
+    '<td>#'+(((s.sector||{}).ranks||{})['5']??'—')+'</td>'+
+    '<td>#'+((s.sector||{}).daily_rank??'—')+'</td>'+
+  '</tr>').join('');
+
+  return '<div class="trade">'+
+    '<div class="tradeHead"><div><div class="tradeName">'+(t.name||'')+' <span class="mut">'+(t.code||'')+' · '+(t.group||'')+'</span></div>'+
+    '<div class="mut">'+(t.id||'')+' · '+(entry.date||'尚未成交')+'</div></div><span class="tag">'+(t.status||'—')+'</span></div>'+
+    '<div class="plan">'+
+      '<div class="box"><small>進場價</small><b>'+money(entry.avg_price)+'</b><small>數量 '+(entry.quantity??'—')+'</small></div>'+
+      '<div class="box"><small>硬停損</small><b>'+money(t.plan?.hard_stop_price)+'</b><small>'+fmtPct(t.plan?.hard_stop_pct)+'</small></div>'+
+      '<div class="box"><small>原始假設</small><b>'+(pre.thesis||'—')+'</b></div>'+
+      '<div class="box"><small>目前狀態</small><b>'+((latest.sector||{}).one_month_state||pre.one_month_state||'—')+'</b><small>未實現 '+fmtPct(latest.unrealized_return_pct)+'</small></div>'+
+    '</div>'+
+    '<div class="mut" style="margin-top:8px">成交事件：'+(executions.length?executions.map(e=>(e.date||'')+' '+(e.side||'')+' '+(e.quantity??'')+' @ '+money(e.price)).join('｜'):'尚無')+'</div>'+
+    (t.status==='CLOSED'?'<div class="empty" style="margin-top:8px">出場：'+(exit.date||'—')+' · '+fmtPct(exit.realized_return_pct)+' · '+(exit.reason||'—')+' · 持有 '+(exit.holding_sessions??'—')+' 日<br>規則遵守：'+(t.review?.rules_followed===true?'是':t.review?.rules_followed===false?'否':'—')+' · MFE '+fmtPct(t.review?.mfe_pct)+' · MAE '+fmtPct(t.review?.mae_pct)+'</div>':'')+
+    '<div class="scroller"><table><thead><tr><th>日期</th><th>未實現</th><th>收盤</th><th>1月結構</th><th>60</th><th>20</th><th>10</th><th>5</th><th>今日族群</th></tr></thead><tbody>'+
+    (rows||'<tr><td colspan="9" class="mut">尚未有收盤快照</td></tr>')+
+    '</tbody></table></div>'+
+  '</div>';
+}
+
+async function load(){
+  const res=await fetch('data/monthly_trades.json?v='+Date.now());
+  const data=await res.json();
+  renderRules(data.strategy||{});
+  renderSummary(data.trades||[]);
+  document.getElementById('updated').textContent=data.updated_at?'更新 '+data.updated_at.slice(0,10):'尚未開始';
+  const trades=data.trades||[];
+  document.getElementById('trades').innerHTML=trades.length?trades.slice().reverse().map(renderTrade).join(''):'<div class="empty">還沒有第一筆實驗交易。等你真的成交後再建立，不把「想買」混成「已買」。</div>';
+}
+load();
+</script>
+</body>
+</html>
