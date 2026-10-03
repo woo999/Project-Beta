@@ -108,8 +108,8 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       </div>
 
       <div class="c">
-        <div class="title"><b>歷史領漲 DNA</b><span class="mut">尚未建模</span></div>
-        <div class="empty">目前已經有歷史行情，但「族群發動日、誰先領漲、重複領漲率」還沒有定義與計算，因此這裡先不放假分數。</div>
+        <div class="title"><b>領漲記憶</b><span class="mut" id="memoryRangeLabel">近 60 日</span></div>
+        <div id="leaderMemory"><div class="empty">選一個族群後，這裡會顯示發動日與重複領漲統計。</div></div>
       </div>
     </div>
   </div>
@@ -124,6 +124,7 @@ let selectedGroupIndex = null;
 let LATEST = {};
 let SUMMARY = null;
 let DAILY = null;
+let MEMORY = null;
 
 const heat = document.getElementById('heat');
 const sectorDetail = document.getElementById('sectorDetail');
@@ -189,6 +190,45 @@ function latestDailyDay(){
   return days.length ? days[days.length-1] : null;
 }
 
+function memoryGroup(name){
+  return MEMORY?.ranges?.[String(selectedRange)]?.groups?.find(g=>g.name===name) || null;
+}
+
+function renderLeaderMemory(){
+  const box=document.getElementById('leaderMemory');
+  const label=document.getElementById('memoryRangeLabel');
+  if(label) label.textContent=nearText(selectedRange);
+
+  if(selectedGroupIndex===null){
+    box.innerHTML='<div class="empty">先點一個族群。系統會統計該族群在「發動日」裡，哪些股票最常進入當日漲幅前三。</div>';
+    return;
+  }
+
+  const g=GROUPS[selectedGroupIndex];
+  const mg=memoryGroup(g.name);
+  if(!mg){
+    box.innerHTML='<div class="empty">領漲記憶資料尚未產生。</div>';
+    return;
+  }
+
+  const rows=(mg.stocks||[]).filter(x=>x.top3_count>0).slice(0,5);
+  const rule='發動日：族群當日排名前3＋平均漲幅≥2%＋至少60%成員上漲';
+
+  if(!mg.activation_days){
+    box.innerHTML='<div class="empty">'+g.name+' 在這個期間沒有符合 v1 規則的發動日。<br>'+rule+'</div>';
+    return;
+  }
+
+  box.innerHTML=
+    '<div class="empty" style="margin-bottom:8px">'+g.name+' · 發動日 <b>'+mg.activation_days+'</b> 天<br>'+rule+'</div>'+
+    rows.map((x,i)=>`
+      <div class="row">
+        <span>#${i+1}</span>
+        <div><b>${x.name}</b><small>${x.code} · 第一名 ${x.top1_count} 次</small></div>
+        <span class="score y">${x.top3_count}/${mg.activation_days} · ${x.top3_rate}%</span>
+      </div>`).join('');
+}
+
 function renderDailyRanks(){
   const box = document.getElementById('dailyRanks');
   const dateEl = document.getElementById('dailyRankDate');
@@ -236,6 +276,7 @@ function openSector(index){
   document.getElementById('selectedSector').textContent=g.name;
   renderHeat();
   renderLeaders();
+  renderLeaderMemory();
 
   const todayGroup = latestDailyDay()?.groups?.find(x=>x.name===g.name);
   const rows=(g.members||[]).map(m=>({
@@ -279,22 +320,25 @@ function setRange(value){
   renderTop();
   renderHeat();
   renderLeaders();
+  renderLeaderMemory();
   if(selectedGroupIndex!==null) openSector(selectedGroupIndex);
 }
 
 async function loadData(){
   try{
     const stamp=Date.now();
-    const [latestRes,summaryRes,dailyRes,statusRes]=await Promise.all([
+    const [latestRes,summaryRes,dailyRes,memoryRes,statusRes]=await Promise.all([
       fetch('data/latest.json?v='+stamp),
       fetch('data/summary.json?v='+stamp),
       fetch('data/daily_rankings.json?v='+stamp),
+      fetch('data/leader_memory.json?v='+stamp),
       fetch('data/market_status.json?v='+stamp)
     ]);
     if(!latestRes.ok||!summaryRes.ok) throw new Error('market data not ready');
     const latest=await latestRes.json();
     SUMMARY=await summaryRes.json();
     DAILY=dailyRes.ok?await dailyRes.json():null;
+    MEMORY=memoryRes.ok?await memoryRes.json():null;
     LATEST=latest.stocks||{};
     const status=statusRes.ok?await statusRes.json():null;
     document.getElementById('dataStatus').innerHTML='<span class="status"><span class="dot"></span>真實收盤資料已載入 · '+Object.keys(LATEST).length+' 檔</span>';
@@ -303,11 +347,11 @@ async function loadData(){
       '資料日期：'+(SUMMARY.latest_date||'—')+'<br>'+
       '歷史起點：'+(status?.earliest_date||'—')+'<br>'+
       '成功：'+(status?.successes??'—')+' / '+(status?.requested_stocks??'—')+' 檔';
-    renderTop();renderHeat();renderLeaders();renderDailyRanks();
+    renderTop();renderHeat();renderLeaders();renderDailyRanks();renderLeaderMemory();
   }catch(err){
     document.getElementById('dataStatus').textContent='資料載入失敗，請稍後重新整理';
     document.getElementById('sourceInfo').textContent='summary.json 尚未部署完成或載入失敗。';
-    renderHeat();renderDailyRanks();
+    renderHeat();renderDailyRanks();renderLeaderMemory();
   }
 }
 
