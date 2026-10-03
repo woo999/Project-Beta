@@ -42,5 +42,6 @@ jobs:
             echo "No market data changes."
           else
             git commit -m "Update WOO Flow market data"
+            git pull --rebase origin main
             git push
           fi
