@@ -258,10 +258,15 @@ function renderLeaderMemory(){
   box.innerHTML=
     '<div class="empty" style="margin-bottom:8px">'+g.name+' · 發動日 <b>'+mg.activation_days+'</b> 天<br>'+rule+'</div>'+
     rows.map((x,i)=>`
-      <div class="row">
-        <span>#${i+1}</span>
-        <div><b>${x.name}</b><small>${x.code} · 第一名 ${x.top1_count} 次</small></div>
-        <span class="score y">${x.top3_count}/${mg.activation_days} · ${x.top3_rate}%</span>
+      <div class="row" style="grid-template-columns:auto 1fr auto">
+        <span class="mut">穩定領漲 #${i+1}</span>
+        <div>
+          <b>${x.name}</b>
+          <small>${x.code}</small>
+          <small>前三出現 ${x.top3_count}/${mg.activation_days} ｜ ${x.top3_rate}%</small>
+          <small>當日第一 ${x.top1_count} 次</small>
+        </div>
+        <span class="score y">${x.top3_rate}%</span>
       </div>`).join('');
 }
 
