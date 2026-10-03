@@ -17,6 +17,7 @@ API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
 BACKFILL_DAYS = 400
 RANGES = (20, 60, 120, 250)
+# Daily rankings archive enabled.
 
 def read_json(path, default=None):
     try:
