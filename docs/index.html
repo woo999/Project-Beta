@@ -134,8 +134,10 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
           新轉強：20日前5＋10日前6＋5日前8，但60日還沒進前8。<br>
           轉強中：20日在前10，10日與5日連續往前，而且20日報酬為正。<br>
           高檔整理：60日背景強、20日仍在前8，但短線確認沒有全部通過，且尚未明顯失速。<br>
-          失速：20日原本在前8，但5日比20日至少退6名，或5日已落到後段且近5日報酬為負。<br>
-          弱勢：20／10／5日都在後段，而且20日報酬不為正。其他歸類為觀察。<br>
+          修復中：20日仍在後段，但10日、5日連續往前，而且10日與5日報酬都為正。<br>
+          失速：60日背景原本強，或20日仍在前8，但5日比20日至少退6名；也包含5日掉到後段且近5日報酬為負。<br>
+          轉弱：60日背景還在前段，但20／10／5日已落後，且20日報酬不為正。<br>
+          弱勢：60日背景也不強，20／10／5日都在後段，而且20日報酬不為正。其他歸類為觀察。<br>
           這是持有週期結構，不是買進訊號；進場價格與風險仍要另外判斷。
         </div>
         <div id="monthStructure" class="monthList"><div class="empty">載入中…</div></div>
@@ -296,22 +298,30 @@ function oneMonthState(name){
   const confirm=r10<=6 && Number.isFinite(ret10) && ret10>0;
   const nearOk=r5<=8;
   const improving=r20<=10 && r10<r20 && r5<=r10 && ret20>0;
-  const lost=r20<=8 && ((r5-r20)>=6 || (r5>=12 && Number.isFinite(ret5) && ret5<0));
-  const weak=r20>=12 && r10>=10 && r5>=10 && ret20<=0;
+  const repairing=r20>=11 && r10<r20 && r5<=r10 &&
+    Number.isFinite(ret10) && ret10>0 && Number.isFinite(ret5) && ret5>0;
+  const lost=(background || r20<=8) &&
+    ((r5-r20)>=6 || (r5>=12 && Number.isFinite(ret5) && ret5<0));
+  const weakening=background && r20>=10 && r10>=9 && r5>=9 && ret20<=0;
+  const weak=!background && r20>=12 && r10>=10 && r5>=10 && ret20<=0;
 
-  let label='觀察', clsName='phaseNeutral', priority=5;
+  let label='觀察', clsName='phaseNeutral', priority=6;
   if(background && core && confirm && nearOk){
     label='結構完整'; clsName='phaseUp'; priority=1;
   }else if(!background && core && confirm && nearOk){
     label='新轉強'; clsName='phaseUp'; priority=2;
   }else if(improving){
     label='轉強中'; clsName='phaseUp'; priority=3;
+  }else if(repairing){
+    label='修復中'; clsName='phaseUp'; priority=4;
   }else if(lost){
-    label='失速'; clsName='phaseDown'; priority=6;
+    label='失速'; clsName='phaseDown'; priority=7;
+  }else if(weakening){
+    label='轉弱'; clsName='phaseDown'; priority=8;
   }else if(weak){
-    label='弱勢'; clsName='phaseDown'; priority=7;
+    label='弱勢'; clsName='phaseDown'; priority=9;
   }else if(background && r20<=8){
-    label='高檔整理'; clsName='phaseNeutral'; priority=4;
+    label='高檔整理'; clsName='phaseNeutral'; priority=5;
   }
 
   const mg20=MEMORY?.ranges?.['20']?.groups?.find(g=>g.name===name);
