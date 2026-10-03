@@ -98,7 +98,17 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       <div class="c">
         <div class="title">
           <b>族群強弱排名</b>
-          <span class="mut" id="rankPeriodLabel">近 60 日</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="tab" type="button" id="rankHelpBtn">怎麼看？</button>
+            <span class="mut" id="rankPeriodLabel">近 60 日</span>
+          </div>
+        </div>
+        <div id="rankHelp" class="empty" style="display:none;margin-bottom:8px">
+          <b>判讀方式</b><br>
+          #1 代表目前選定週期最強，#16 最弱。<br>
+          ↑3 代表比前一個更長週期上升 3 名；↓2 代表下降 2 名；→ 代表沒變。<br>
+          旁邊的 +8.2% / -3.1% 是該族群在這個週期內的平均報酬，不是今天漲跌。<br>
+          實戰重點：名次持續往前＝近期升溫；名次持續往後＝近期轉弱；短期突然大幅往前＝新主流候選，要再搭配今日族群強度與領漲股確認。
         </div>
         <div id="rankTrend" class="rankCompact"><div class="empty">載入中…</div></div>
       </div>
@@ -533,6 +543,11 @@ async function loadData(){
 
 document.querySelectorAll('#rangeTabs .tab').forEach(btn=>{
   btn.addEventListener('click',()=>setRange(Number(btn.dataset.range)));
+});
+document.getElementById('rankHelpBtn')?.addEventListener('click',()=>{
+  const help=document.getElementById('rankHelp');
+  if(!help) return;
+  help.style.display=help.style.display==='none'?'block':'none';
 });
 
 renderHeat();
