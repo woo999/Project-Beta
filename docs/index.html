@@ -32,7 +32,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .m{padding:10px;border:1px solid #18313a;border-radius:9px}
 .m b{font-size:18px}.m small{display:block;color:#8da2ab;margin-top:3px}
 .tabs{display:flex;gap:5px;flex-wrap:wrap}
-.tab{border:1px solid #28515f;border-radius:999px;padding:6px 9px;font-size:11px;color:#8fa4ad}
+.tab{border:1px solid #28515f;border-radius:999px;padding:6px 9px;font-size:11px;color:#8fa4ad;background:transparent;cursor:pointer}.tab:hover{border-color:#3d7181;color:#dce9ee}.tab:focus-visible{outline:2px solid #44d5ff55;outline-offset:2px}
 .on{background:#12303a;color:#eef7fa}
 .empty{padding:12px;border:1px dashed #23414c;border-radius:9px;color:#718791;font-size:11px;line-height:1.6}
 .foot{color:#657b84;font-size:10px;text-align:right;margin-top:10px}
@@ -48,13 +48,16 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       <div class="brand">WOO FLOW</div>
       <div class="sub">資金流向作戰室 · 長線族群記憶 × 領漲 DNA</div>
     </div>
-    <div class="tabs">
-      <span class="tab">20日</span><span class="tab on">60日</span><span class="tab">120日</span><span class="tab">1年</span>
+    <div class="tabs" id="rangeTabs">
+      <button class="tab" type="button" data-range="20">20日</button>
+      <button class="tab on" type="button" data-range="60">60日</button>
+      <button class="tab" type="button" data-range="120">120日</button>
+      <button class="tab" type="button" data-range="250">1年</button>
     </div>
   </div>
 
   <div class="k">
-    <div class="c"><div class="mut">市場淨流入</div><div class="v">—</div></div>
+    <div class="c"><div class="mut">觀察期間</div><div class="v" id="rangeValue">60 日</div></div>
     <div class="c"><div class="mut">最強族群</div><div class="v">—</div></div>
     <div class="c"><div class="mut">資金集中度</div><div class="v">—</div></div>
     <div class="c"><div class="mut">異常加速</div><div class="v">—</div></div>
@@ -79,17 +82,17 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 
     <div class="side">
       <div class="c">
-        <div class="title"><b>歷史領漲 DNA</b><span class="mut">尚未計算</span></div>
+        <div class="title"><b>歷史領漲 DNA</b><span class="mut" id="dnaRangeLabel">近 60 日 · 尚未計算</span></div>
         <div class="empty">等真實歷史行情接進來後，這裡才會開始統計每個族群反覆領漲的股票。</div>
       </div>
 
       <div class="c">
-        <div class="title"><b>資金正在轉向</b><span class="mut">尚未接資料</span></div>
+        <div class="title"><b>資金正在轉向</b><span class="mut" id="flowRangeLabel">近 60 日 · 尚未接資料</span></div>
         <div class="empty">目前不顯示任何推測資金流向。接入真實資料後再計算。</div>
       </div>
 
       <div class="c">
-        <div class="title"><b>歷史幽靈提示</b><span class="mut">尚未計算</span></div>
+        <div class="title"><b>歷史幽靈提示</b><span class="mut" id="ghostRangeLabel">近 60 日 · 尚未計算</span></div>
         <div class="empty">等累積足夠歷史資料後，再標記「某族群一發動就反覆出現」的高頻領漲股。</div>
       </div>
     </div>
@@ -139,6 +142,27 @@ document.querySelectorAll('.s').forEach(el=>{
     }
   });
 });
+
+let selectedRange = 60;
+const rangeText = value => value === 250 ? '1 年' : value + ' 日';
+const nearText = value => value === 250 ? '近 1 年' : '近 ' + value + ' 日';
+
+function setRange(value){
+  selectedRange = value;
+  document.querySelectorAll('#rangeTabs .tab').forEach(btn=>{
+    btn.classList.toggle('on', Number(btn.dataset.range) === value);
+  });
+  document.getElementById('rangeValue').textContent = rangeText(value);
+  document.getElementById('dnaRangeLabel').textContent = nearText(value) + ' · 尚未計算';
+  document.getElementById('flowRangeLabel').textContent = nearText(value) + ' · 尚未接資料';
+  document.getElementById('ghostRangeLabel').textContent = nearText(value) + ' · 尚未計算';
+}
+
+document.querySelectorAll('#rangeTabs .tab').forEach(btn=>{
+  btn.addEventListener('click',()=>setRange(Number(btn.dataset.range)));
+});
+
+setRange(selectedRange);
 </script>
 </body>
 </html>
