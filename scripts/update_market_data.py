@@ -11,6 +11,7 @@ GROUPS_PATH = ROOT / "docs" / "data" / "groups.json"
 HISTORY_DIR = ROOT / "docs" / "data" / "history"
 LATEST_PATH = ROOT / "docs" / "data" / "latest.json"
 SUMMARY_PATH = ROOT / "docs" / "data" / "summary.json"
+DAILY_RANKINGS_PATH = ROOT / "docs" / "data" / "daily_rankings.json"
 STATUS_PATH = ROOT / "docs" / "data" / "market_status.json"
 API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
@@ -109,6 +110,78 @@ def stock_range_stats(rows, sessions):
         "latest_pct": latest.get("pct"),
         "latest_money": latest.get("money"),
         "latest_volume": latest.get("volume"),
+    }
+
+def build_daily_rankings(groups, histories):
+    names = {}
+    by_code_date = {}
+    all_dates = set()
+
+    for g in groups.get("groups", []):
+        for m in g.get("members", []):
+            names[m["code"]] = m["name"]
+
+    for code, rows in histories.items():
+        daymap = {}
+        for r in rows:
+            d = r.get("date")
+            if d:
+                daymap[d] = r
+                all_dates.add(d)
+        by_code_date[code] = daymap
+
+    days = []
+    for d in sorted(all_dates):
+        ranked = []
+        for g in groups.get("groups", []):
+            members = []
+            for m in g.get("members", []):
+                r = by_code_date.get(m["code"], {}).get(d)
+                pct = r.get("pct") if r else None
+                if isinstance(pct, (int, float)):
+                    members.append({
+                        "code": m["code"],
+                        "name": m["name"],
+                        "pct": round(pct, 4),
+                        "money": r.get("money") or 0,
+                        "volume": r.get("volume") or 0,
+                        "close": r.get("close"),
+                    })
+
+            if not members:
+                continue
+
+            pcts = [x["pct"] for x in members]
+            leaders = sorted(members, key=lambda x: x["pct"], reverse=True)[:3]
+            ranked.append({
+                "name": g["name"],
+                "member_count": len(g.get("members", [])),
+                "priced_members": len(members),
+                "avg_pct": round(sum(pcts) / len(pcts), 4),
+                "up_count": sum(1 for x in members if x["pct"] > 0),
+                "down_count": sum(1 for x in members if x["pct"] < 0),
+                "gt3_count": sum(1 for x in members if x["pct"] >= 3),
+                "gt5_count": sum(1 for x in members if x["pct"] >= 5),
+                "total_money": sum(x["money"] for x in members),
+                "leaders": leaders,
+            })
+
+        ranked.sort(key=lambda x: x["avg_pct"], reverse=True)
+        for i, g in enumerate(ranked, 1):
+            g["rank"] = i
+
+        if ranked:
+            days.append({"date": d, "groups": ranked})
+
+    return {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "definition": {
+            "group_daily_strength": "arithmetic mean of member daily pct returns",
+            "leaders": "top 3 member daily pct returns within each group",
+            "gt3_count": "members with daily pct >= 3%",
+            "gt5_count": "members with daily pct >= 5%",
+        },
+        "days": days,
     }
 
 def build_summary(groups, histories, latest):
@@ -231,6 +304,7 @@ def main():
         "stocks": latest,
     })
     write_json(SUMMARY_PATH, build_summary(groups, histories, latest))
+    write_json(DAILY_RANKINGS_PATH, build_daily_rankings(groups, histories))
     write_json(STATUS_PATH, {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "requested_stocks": len(members),
