@@ -261,8 +261,15 @@ function renderLeaderMemory(){
     return;
   }
 
+  const groupFt=mg.group_follow_through||{};
   box.innerHTML=
     '<div class="empty" style="margin-bottom:8px">'+g.name+' · 發動日 <b>'+mg.activation_days+'</b> 天<br>'+rule+'</div>'+
+    '<div class="eventDetail" style="margin-bottom:8px">'+
+      '<div><b>族群發動後續性</b></div>'+
+      '<div class="'+cls(groupFt?.['1']?.avg_return)+'" style="margin-top:6px;font-size:11px">'+fmtFollow(groupFt,1)+'</div>'+
+      '<div class="'+cls(groupFt?.['3']?.avg_return)+'" style="margin-top:4px;font-size:11px">'+fmtFollow(groupFt,3)+'</div>'+
+      '<div class="'+cls(groupFt?.['5']?.avg_return)+'" style="margin-top:4px;font-size:11px">'+fmtFollow(groupFt,5)+'</div>'+
+    '</div>'+
     rows.map((x,i)=>`
       <div class="row" style="grid-template-columns:auto 1fr auto">
         <span class="mut">穩定領漲 #${i+1}</span>
@@ -291,6 +298,12 @@ function renderLeaderMemory(){
       <div class="eventDetail">
         <div><b>${e.date}</b> · 族群排名 #${e.rank}</div>
         <div class="mut" style="margin-top:4px">族群平均 ${fmtPct(e.avg_pct)} · 上漲 ${e.up_count}/${e.priced_members}</div>
+        <div class="mut" style="margin-top:6px">
+          ${['1','3','5'].map(h=>{
+            const x=e.group_follow_through?.[h];
+            return x ? '後'+h+'日 '+fmtPct(x.return)+'（'+x.target_date+' · '+x.member_samples+'檔）' : '後'+h+'日 —';
+          }).join('　')}
+        </div>
         ${(e.leaders||[]).map((x,i)=>`
           <div class="eventLead">
             <span>#${i+1} ${x.name} <span class="mut">${x.code}</span></span>
