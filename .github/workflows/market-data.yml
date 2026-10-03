@@ -9,14 +9,13 @@ on:
     paths:
       - "scripts/update_market_data.py"
       - "docs/data/groups.json"
-      - ".github/workflows/market-data.yml"
 
 permissions:
   contents: write
 
 concurrency:
   group: woo-flow-market-data
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   update:
