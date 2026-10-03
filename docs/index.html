@@ -46,7 +46,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .on{background:#12303a;color:#eef7fa}
 .empty{padding:12px;border:1px dashed #23414c;border-radius:9px;color:#718791;font-size:11px;line-height:1.6}
 .foot{color:#657b84;font-size:10px;text-align:right;margin-top:10px}
-.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.rankCompact{max-height:320px;overflow-y:auto;padding-right:2px}.dnaList{max-height:360px;overflow-y:auto;padding-right:2px}.dnaStock{border:1px solid #18313a;background:#0b1a20;border-radius:10px;padding:9px;margin-bottom:7px}.dnaHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.dnaName{font-weight:850;font-size:12px}.dnaCode{font-size:10px;color:#718791;margin-left:5px}.dnaGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.dnaMetric{border:1px solid #17303a;border-radius:7px;padding:6px;background:#09161b}.dnaMetric span{display:block;color:#718791;font-size:9px}.dnaMetric b{display:block;font-size:11px;margin-top:2px}.dnaMetric small{display:block;color:#607680;font-size:8px;margin-top:1px}.rankItem{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 7px;border-bottom:1px solid #17303a;cursor:pointer;border-radius:8px}.rankItem:hover{background:#102128}.rankItem.active{background:#12303a;box-shadow:inset 0 0 0 1px #44d5ff33}.rankNo{font-weight:900;color:#dfeaed}.rankName{font-weight:800;font-size:12px}.rankMeta{font-size:10px;color:#7f949d;margin-top:2px}.rankUp{color:#44d5ff;font-weight:800}.rankDown{color:#ff9b6a;font-weight:800}.rankSame{color:#718791}.rankMove{text-align:right;font-size:11px}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
+.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.rankCompact{max-height:320px;overflow-y:auto;padding-right:2px}.dnaList{max-height:360px;overflow-y:auto;padding-right:2px}.dnaStock{border:1px solid #18313a;background:#0b1a20;border-radius:10px;padding:9px;margin-bottom:7px}.dnaHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.dnaName{font-weight:850;font-size:12px}.dnaCode{font-size:10px;color:#718791;margin-left:5px}.dnaGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.dnaMetric{border:1px solid #17303a;border-radius:7px;padding:6px;background:#09161b}.dnaMetric span{display:block;color:#718791;font-size:9px}.dnaMetric b{display:block;font-size:11px;margin-top:2px}.dnaMetric small{display:block;color:#607680;font-size:8px;margin-top:1px}.warn{color:#ffc95c;font-weight:800}.ghostBtn{display:none;border:1px solid #28515f;background:transparent;color:#9eb0b8;border-radius:8px;padding:5px 8px;font-size:10px;cursor:pointer}.ghostBtn.show{display:inline-block}.ghostBtn:hover{border-color:#44d5ff;color:#eef7fa}.rankItem{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 7px;border-bottom:1px solid #17303a;cursor:pointer;border-radius:8px}.rankItem:hover{background:#102128}.rankItem.active{background:#12303a;box-shadow:inset 0 0 0 1px #44d5ff33}.rankNo{font-weight:900;color:#dfeaed}.rankName{font-weight:800;font-size:12px}.rankMeta{font-size:10px;color:#7f949d;margin-top:2px}.rankUp{color:#44d5ff;font-weight:800}.rankDown{color:#ff9b6a;font-weight:800}.rankSame{color:#718791}.rankMove{text-align:right;font-size:11px}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
 @media(max-width:1000px){.heat{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:850px){.top{align-items:flex-start;flex-direction:column}.k{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.heat{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.heat{grid-template-columns:1fr}.member-grid{grid-template-columns:1fr}.memberData{grid-template-columns:1fr 1fr}}
@@ -80,7 +80,10 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
   <div class="grid">
     <div class="c">
       <div class="title">
-        <b>你的族群</b>
+        <div style="display:flex;gap:8px;align-items:center">
+          <b>你的族群</b>
+          <button class="ghostBtn" type="button" id="clearSelectionBtn">回到全部</button>
+        </div>
         <span class="mut" id="dataStatus">正在讀取收盤資料…</span>
       </div>
       <div class="heat" id="heat"></div>
@@ -123,8 +126,9 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
         </div>
         <div id="dnaHelp" class="empty" style="display:none;margin-bottom:8px">
           <b>6 個數字怎麼看</b><br>
-          前三率＝族群發動時，這檔進入族群漲幅前三的比例。<br>
+          領漲位置＝把每次發動日的族群內名次正規化；100 代表平均都在第1名，越低代表平均位置越後面。<br>
           第一率＝族群發動時，這檔拿族群第一名的比例。<br>
+          前三次數仍會保留在股票名稱旁，但不再當主要指標，避免 2～3 檔的小族群天然都是 100%。<br>
           發動漲幅＝這檔進前三那些發動日，當天平均漲幅。<br>
           後1／3／5日＝進前三後，往後第 1／3／5 個交易日的平均報酬；n 是有效樣本數。<br>
           這裡沒有總分，避免把不同型態硬混成一個分數。
@@ -133,23 +137,18 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       </div>
 
       <div class="c">
-        <div class="title"><b>區間領先股</b><span class="mut" id="leaderRangeLabel">近 60 日</span></div>
+        <div class="title"><b>區間領先股</b><span class="mut" id="leaderScopeLabel">全體 · 近 60 日</span></div>
         <div id="leaders"><div class="empty">載入中…</div></div>
       </div>
 
       <div class="c">
-        <div class="title"><b>最新交易日族群排名</b><span class="mut" id="dailyRankDate">載入中…</span></div>
+        <div class="title"><b>今日前三族群</b><span class="mut" id="dailyRankDate">載入中…</span></div>
         <div id="dailyRanks"><div class="empty">載入中…</div></div>
       </div>
 
       <div class="c">
-        <div class="title"><b>資料狀態</b><span class="mut">每日收盤更新</span></div>
-        <div id="sourceInfo" class="empty">載入中…</div>
-      </div>
-
-      <div class="c">
-        <div class="title"><b>領漲記憶</b><span class="mut" id="memoryRangeLabel">近 60 日</span></div>
-        <div id="leaderMemory"><div class="empty">選一個族群後，這裡會顯示發動日與重複領漲統計。</div></div>
+        <div class="title"><b>發動日回看</b><span class="mut" id="memoryRangeLabel">近 60 日</span></div>
+        <div id="leaderMemory"><div class="empty">選一個族群後，這裡會顯示族群發動後續性與每次發動日。</div></div>
       </div>
     </div>
   </div>
@@ -308,7 +307,11 @@ function renderTop(){
   }
   document.getElementById('trackedMoney').textContent = fmtMoney(SUMMARY?.latest_money_unique);
   document.getElementById('dataDate').textContent = SUMMARY?.latest_date || '—';
-  document.getElementById('leaderRangeLabel').textContent = nearText(selectedRange);
+  const scopeLabel=document.getElementById('leaderScopeLabel');
+  if(scopeLabel){
+    const scope=selectedGroupIndex===null?'全體':GROUPS[selectedGroupIndex]?.name||'全體';
+    scopeLabel.textContent=scope+' · '+nearText(selectedRange);
+  }
 }
 
 function renderHeat(){
@@ -373,11 +376,15 @@ function renderLeaderDNA(){
   }
 
   const rows=[...(mg.stocks||[])].sort((a,b)=>
-    (b.top3_rate??-1)-(a.top3_rate??-1) ||
-    (b.top1_rate??-1)-(a.top1_rate??-1)
+    (b.leader_position_score??-1)-(a.leader_position_score??-1) ||
+    (b.top1_rate??-1)-(a.top1_rate??-1) ||
+    (b.top3_rate??-1)-(a.top3_rate??-1)
   );
 
-  box.innerHTML=rows.map((x,i)=>{
+  const sampleWarning=mg.activation_days<3
+    ? '<div class="empty warn" style="margin-bottom:8px">樣本太少：這個期間只有 '+mg.activation_days+' 個發動日，先看數字，不要下定論。</div>'
+    : '';
+  box.innerHTML=sampleWarning+rows.map((x,i)=>{
     const f1=x.follow_through?.['1'];
     const f3=x.follow_through?.['3'];
     const f5=x.follow_through?.['5'];
@@ -385,10 +392,10 @@ function renderLeaderDNA(){
       <div class="dnaStock">
         <div class="dnaHead">
           <div><span class="dnaName">#${i+1} ${x.name}</span><span class="dnaCode">${x.code}</span></div>
-          <span class="mut">發動日 ${mg.activation_days} 天</span>
+          <span class="mut">前三 ${x.top3_count}/${mg.activation_days}</span>
         </div>
         <div class="dnaGrid">
-          <div class="dnaMetric"><span>前三率</span><b class="y">${fmtRate(x.top3_rate)}</b><small>${x.top3_count}/${mg.activation_days}</small></div>
+          <div class="dnaMetric"><span>領漲位置</span><b class="y">${fmtRate(x.leader_position_score)}</b><small>平均名次 ${Number.isFinite(x.avg_rank_when_activation)?x.avg_rank_when_activation.toFixed(2):'—'} · n=${x.position_samples||0}</small></div>
           <div class="dnaMetric"><span>第一率</span><b>${fmtRate(x.top1_rate)}</b><small>${x.top1_count} 次</small></div>
           <div class="dnaMetric"><span>發動漲幅</span><b class="${cls(x.avg_pct_when_leader)}">${fmtPct(x.avg_pct_when_leader)}</b><small>進前三當日平均</small></div>
           <div class="dnaMetric"><span>後1日</span><b class="${cls(f1?.avg_return)}">${fmtPct(f1?.avg_return)}</b><small>勝率 ${Number.isFinite(f1?.win_rate)?f1.win_rate.toFixed(0)+'%':'—'} · n=${f1?.samples||0}</small></div>
@@ -420,7 +427,6 @@ function renderLeaderMemory(){
     return;
   }
 
-  const rows=(mg.stocks||[]).filter(x=>x.top3_count>0).slice(0,5);
   const events=[...(mg.events||[])].reverse();
   const rule='發動日：族群當日排名前3＋平均漲幅≥2%＋至少60%成員上漲';
 
@@ -438,21 +444,7 @@ function renderLeaderMemory(){
       '<div class="'+cls(groupFt?.['3']?.avg_return)+'" style="margin-top:4px;font-size:11px">'+fmtFollow(groupFt,3)+'</div>'+
       '<div class="'+cls(groupFt?.['5']?.avg_return)+'" style="margin-top:4px;font-size:11px">'+fmtFollow(groupFt,5)+'</div>'+
     '</div>'+
-    rows.map((x,i)=>`
-      <div class="row" style="grid-template-columns:auto 1fr auto">
-        <span class="mut">穩定領漲 #${i+1}</span>
-        <div>
-          <b>${x.name}</b>
-          <small>${x.code}</small>
-          <small>前三出現 ${x.top3_count}/${mg.activation_days} ｜ ${x.top3_rate}%</small>
-          <small>當日第一 ${x.top1_count} 次</small>
-          <small class="${cls(x.follow_through?.['1']?.avg_return)}">${fmtFollow(x.follow_through,1)}</small>
-          <small class="${cls(x.follow_through?.['3']?.avg_return)}">${fmtFollow(x.follow_through,3)}</small>
-          <small class="${cls(x.follow_through?.['5']?.avg_return)}">${fmtFollow(x.follow_through,5)}</small>
-        </div>
-        <span class="score y">${x.top3_rate}%</span>
-      </div>`).join('')+
-    '<div class="mut" style="margin-top:8px">後續性＝該股在發動日進前三後，以當日收盤為基準，觀察後 1／3／5 個交易日。</div>'+
+    '<div class="mut" style="margin-top:8px">個股 DNA 已移到上方「領漲 DNA」；這裡只保留族群後續性與實際發動日。</div>'+
     '<div class="mut" style="margin-top:10px">發動日回看 · 點日期查看當天</div>'+
     '<div class="eventDates">'+events.map((e,i)=>`<button class="eventBtn" type="button" data-event-index="${i}">${e.date}</button>`).join('')+'</div>'+
     '<div id="eventDetail"></div>';
@@ -492,7 +484,7 @@ function renderDailyRanks(){
     return;
   }
   dateEl.textContent=day.date;
-  const top=(day.groups||[]).slice(0,5);
+  const top=(day.groups||[]).slice(0,3);
   box.innerHTML=top.map(g=>`
     <div class="row">
       <span>#${g.rank}</span>
@@ -532,6 +524,7 @@ function openSector(index){
   if(!g) return;
   selectedGroupIndex=index;
   document.getElementById('selectedSector').textContent=g.name;
+  document.getElementById('clearSelectionBtn')?.classList.add('show');
   renderHeat();
   renderLeaders();
   renderLeaderMemory();
@@ -574,6 +567,21 @@ function openSector(index){
   sectorDetail.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
+function clearSelection(){
+  selectedGroupIndex=null;
+  document.getElementById('selectedSector').textContent='—';
+  document.getElementById('activationCount').textContent='—';
+  document.getElementById('clearSelectionBtn')?.classList.remove('show');
+  sectorDetail.classList.remove('show');
+  sectorDetail.innerHTML='';
+  renderHeat();
+  renderLeaders();
+  renderLeaderMemory();
+  renderLeaderDNA();
+  renderRankTrend();
+  renderTop();
+}
+
 function setRange(value){
   selectedRange=value;
   document.querySelectorAll('#rangeTabs .tab').forEach(btn=>btn.classList.toggle('on',Number(btn.dataset.range)===value));
@@ -603,16 +611,10 @@ async function loadData(){
     MEMORY=memoryRes.ok?await memoryRes.json():null;
     LATEST=latest.stocks||{};
     const status=statusRes.ok?await statusRes.json():null;
-    document.getElementById('dataStatus').innerHTML='<span class="status"><span class="dot"></span>真實收盤資料已載入 · '+Object.keys(LATEST).length+' 檔</span>';
-    document.getElementById('sourceInfo').innerHTML=
-      '來源：FinMind TaiwanStockPrice<br>'+
-      '資料日期：'+(SUMMARY.latest_date||'—')+'<br>'+
-      '歷史起點：'+(status?.earliest_date||'—')+'<br>'+
-      '成功：'+(status?.successes??'—')+' / '+(status?.requested_stocks??'—')+' 檔';
+    document.getElementById('dataStatus').innerHTML='<span class="status"><span class="dot"></span>'+(SUMMARY.latest_date||'—')+' · '+Object.keys(LATEST).length+' 檔已更新</span>';
     renderTop();renderHeat();renderLeaders();renderDailyRanks();renderLeaderMemory();renderLeaderDNA();renderRankTrend();
   }catch(err){
     document.getElementById('dataStatus').textContent='資料載入失敗，請稍後重新整理';
-    document.getElementById('sourceInfo').textContent='summary.json 尚未部署完成或載入失敗。';
     renderHeat();renderDailyRanks();renderLeaderMemory();renderLeaderDNA();renderRankTrend();
   }
 }
@@ -620,6 +622,7 @@ async function loadData(){
 document.querySelectorAll('#rangeTabs .tab').forEach(btn=>{
   btn.addEventListener('click',()=>setRange(Number(btn.dataset.range)));
 });
+document.getElementById('clearSelectionBtn')?.addEventListener('click',clearSelection);
 document.getElementById('rankHelpBtn')?.addEventListener('click',()=>{
   const help=document.getElementById('rankHelp');
   if(!help) return;
