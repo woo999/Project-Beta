@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "updated_at": null,
+  "strategy": {
+    "id": "M1_STRUCTURE",
+    "name": "1個月結構實驗",
+    "target_holding_days": [15, 20],
+    "max_holding_days": 20,
+    "hard_stop_pct": -7,
+    "risk_reset_pct": 10,
+    "partial_take_profit_pct": [15, 18],
+    "trailing_from_peak_pct": -8,
+    "principle": "進場前規則鎖定；成交與出場只追加事件；市場快照每日收盤自動保存。"
+  },
+  "field_definition": {
+    "pre_entry": "進場前市場狀態與交易假設，建立後不覆寫",
+    "executions": "所有買賣成交逐筆追加",
+    "snapshots": "開倉期間每日收盤自動快照",
+    "exit": "最後出場結果與原因",
+    "review": "規則遵守、MFE、MAE與事後複盤"
+  },
+  "trades": []
+}
