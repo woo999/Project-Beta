@@ -46,7 +46,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .on{background:#12303a;color:#eef7fa}
 .empty{padding:12px;border:1px dashed #23414c;border-radius:9px;color:#718791;font-size:11px;line-height:1.6}
 .foot{color:#657b84;font-size:10px;text-align:right;margin-top:10px}
-.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.rankCompact{max-height:320px;overflow-y:auto;padding-right:2px}.rankItem{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 7px;border-bottom:1px solid #17303a;cursor:pointer;border-radius:8px}.rankItem:hover{background:#102128}.rankItem.active{background:#12303a;box-shadow:inset 0 0 0 1px #44d5ff33}.rankNo{font-weight:900;color:#dfeaed}.rankName{font-weight:800;font-size:12px}.rankMeta{font-size:10px;color:#7f949d;margin-top:2px}.rankUp{color:#44d5ff;font-weight:800}.rankDown{color:#ff9b6a;font-weight:800}.rankSame{color:#718791}.rankMove{text-align:right;font-size:11px}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
+.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.rankCompact{max-height:320px;overflow-y:auto;padding-right:2px}.dnaList{max-height:360px;overflow-y:auto;padding-right:2px}.dnaStock{border:1px solid #18313a;background:#0b1a20;border-radius:10px;padding:9px;margin-bottom:7px}.dnaHead{display:flex;justify-content:space-between;gap:8px;align-items:center}.dnaName{font-weight:850;font-size:12px}.dnaCode{font-size:10px;color:#718791;margin-left:5px}.dnaGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:7px}.dnaMetric{border:1px solid #17303a;border-radius:7px;padding:6px;background:#09161b}.dnaMetric span{display:block;color:#718791;font-size:9px}.dnaMetric b{display:block;font-size:11px;margin-top:2px}.dnaMetric small{display:block;color:#607680;font-size:8px;margin-top:1px}.rankItem{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:8px 7px;border-bottom:1px solid #17303a;cursor:pointer;border-radius:8px}.rankItem:hover{background:#102128}.rankItem.active{background:#12303a;box-shadow:inset 0 0 0 1px #44d5ff33}.rankNo{font-weight:900;color:#dfeaed}.rankName{font-weight:800;font-size:12px}.rankMeta{font-size:10px;color:#7f949d;margin-top:2px}.rankUp{color:#44d5ff;font-weight:800}.rankDown{color:#ff9b6a;font-weight:800}.rankSame{color:#718791}.rankMove{text-align:right;font-size:11px}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
 @media(max-width:1000px){.heat{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:850px){.top{align-items:flex-start;flex-direction:column}.k{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.heat{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.heat{grid-template-columns:1fr}.member-grid{grid-template-columns:1fr}.memberData{grid-template-columns:1fr 1fr}}
@@ -90,7 +90,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
         <div class="m"><b class="b">16</b><small>正式族群</small></div>
         <div class="m"><b>78</b><small>追蹤股票</small></div>
         <div class="m"><b id="selectedSector">—</b><small>目前選取族群</small></div>
-        <div class="m"><b>—</b><small>領漲 DNA（下一階段）</small></div>
+        <div class="m"><b class="b">v1</b><small>領漲 DNA 已啟用</small></div>
       </div>
     </div>
 
@@ -111,6 +111,25 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
           實戰重點：名次持續往前＝近期升溫；名次持續往後＝近期轉弱；短期突然大幅往前＝新主流候選，要再搭配今日族群強度與領漲股確認。
         </div>
         <div id="rankTrend" class="rankCompact"><div class="empty">載入中…</div></div>
+      </div>
+
+      <div class="c">
+        <div class="title">
+          <b>領漲 DNA v1</b>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="tab" type="button" id="dnaHelpBtn">怎麼看？</button>
+            <span class="mut" id="dnaRangeLabel">近 60 日</span>
+          </div>
+        </div>
+        <div id="dnaHelp" class="empty" style="display:none;margin-bottom:8px">
+          <b>6 個數字怎麼看</b><br>
+          前三率＝族群發動時，這檔進入族群漲幅前三的比例。<br>
+          第一率＝族群發動時，這檔拿族群第一名的比例。<br>
+          發動漲幅＝這檔進前三那些發動日，當天平均漲幅。<br>
+          後1／3／5日＝進前三後，往後第 1／3／5 個交易日的平均報酬；n 是有效樣本數。<br>
+          這裡沒有總分，避免把不同型態硬混成一個分數。
+        </div>
+        <div id="leaderDNA" class="dnaList"><div class="empty">先選一個族群。</div></div>
       </div>
 
       <div class="c">
@@ -160,6 +179,7 @@ const fmtFollow = (ft,h) => {
   if(!x || !x.samples) return '後'+h+'日 —';
   return '後'+h+'日 '+fmtPct(x.avg_return)+' · 勝率 '+Number(x.win_rate).toFixed(0)+'% · n='+x.samples;
 };
+const fmtRate = v => Number.isFinite(v) ? v.toFixed(1)+'%' : '—';
 const rangeText = value => value === 1 ? '今日' : value === 250 ? '1 年' : value + ' 日';
 const nearText = value => value === 1 ? '今日' : value === 250 ? '近 1 年' : '近 ' + value + ' 日';
 
@@ -325,6 +345,56 @@ function memoryGroup(name){
   return MEMORY?.ranges?.[String(selectedRange)]?.groups?.find(g=>g.name===name) || null;
 }
 
+function renderLeaderDNA(){
+  const box=document.getElementById('leaderDNA');
+  const label=document.getElementById('dnaRangeLabel');
+  if(!box) return;
+  if(label) label.textContent=nearText(selectedRange);
+
+  if(selectedGroupIndex===null){
+    box.innerHTML='<div class="empty">先點一個族群，這裡才會顯示該族群每檔股票的 DNA。</div>';
+    return;
+  }
+
+  if(selectedRange===1){
+    box.innerHTML='<div class="empty">「今日」樣本只有一天，不計算 DNA。請切到 5日以上。</div>';
+    return;
+  }
+
+  const g=GROUPS[selectedGroupIndex];
+  const mg=memoryGroup(g.name);
+  if(!mg || !mg.activation_days){
+    box.innerHTML='<div class="empty">'+g.name+' 在這個期間沒有足夠的發動日樣本。</div>';
+    return;
+  }
+
+  const rows=[...(mg.stocks||[])].sort((a,b)=>
+    (b.top3_rate??-1)-(a.top3_rate??-1) ||
+    (b.top1_rate??-1)-(a.top1_rate??-1)
+  );
+
+  box.innerHTML=rows.map((x,i)=>{
+    const f1=x.follow_through?.['1'];
+    const f3=x.follow_through?.['3'];
+    const f5=x.follow_through?.['5'];
+    return `
+      <div class="dnaStock">
+        <div class="dnaHead">
+          <div><span class="dnaName">#${i+1} ${x.name}</span><span class="dnaCode">${x.code}</span></div>
+          <span class="mut">發動日 ${mg.activation_days} 天</span>
+        </div>
+        <div class="dnaGrid">
+          <div class="dnaMetric"><span>前三率</span><b class="y">${fmtRate(x.top3_rate)}</b><small>${x.top3_count}/${mg.activation_days}</small></div>
+          <div class="dnaMetric"><span>第一率</span><b>${fmtRate(x.top1_rate)}</b><small>${x.top1_count} 次</small></div>
+          <div class="dnaMetric"><span>發動漲幅</span><b class="${cls(x.avg_pct_when_leader)}">${fmtPct(x.avg_pct_when_leader)}</b><small>進前三當日平均</small></div>
+          <div class="dnaMetric"><span>後1日</span><b class="${cls(f1?.avg_return)}">${fmtPct(f1?.avg_return)}</b><small>勝率 ${Number.isFinite(f1?.win_rate)?f1.win_rate.toFixed(0)+'%':'—'} · n=${f1?.samples||0}</small></div>
+          <div class="dnaMetric"><span>後3日</span><b class="${cls(f3?.avg_return)}">${fmtPct(f3?.avg_return)}</b><small>勝率 ${Number.isFinite(f3?.win_rate)?f3.win_rate.toFixed(0)+'%':'—'} · n=${f3?.samples||0}</small></div>
+          <div class="dnaMetric"><span>後5日</span><b class="${cls(f5?.avg_return)}">${fmtPct(f5?.avg_return)}</b><small>勝率 ${Number.isFinite(f5?.win_rate)?f5.win_rate.toFixed(0)+'%':'—'} · n=${f5?.samples||0}</small></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 function renderLeaderMemory(){
   const box=document.getElementById('leaderMemory');
   const label=document.getElementById('memoryRangeLabel');
@@ -461,6 +531,7 @@ function openSector(index){
   renderHeat();
   renderLeaders();
   renderLeaderMemory();
+  renderLeaderDNA();
   renderRankTrend();
 
   const todayGroup = latestDailyDay()?.groups?.find(x=>x.name===g.name);
@@ -533,11 +604,11 @@ async function loadData(){
       '資料日期：'+(SUMMARY.latest_date||'—')+'<br>'+
       '歷史起點：'+(status?.earliest_date||'—')+'<br>'+
       '成功：'+(status?.successes??'—')+' / '+(status?.requested_stocks??'—')+' 檔';
-    renderTop();renderHeat();renderLeaders();renderDailyRanks();renderLeaderMemory();renderRankTrend();
+    renderTop();renderHeat();renderLeaders();renderDailyRanks();renderLeaderMemory();renderLeaderDNA();renderRankTrend();
   }catch(err){
     document.getElementById('dataStatus').textContent='資料載入失敗，請稍後重新整理';
     document.getElementById('sourceInfo').textContent='summary.json 尚未部署完成或載入失敗。';
-    renderHeat();renderDailyRanks();renderLeaderMemory();renderRankTrend();
+    renderHeat();renderDailyRanks();renderLeaderMemory();renderLeaderDNA();renderRankTrend();
   }
 }
 
@@ -546,6 +617,11 @@ document.querySelectorAll('#rangeTabs .tab').forEach(btn=>{
 });
 document.getElementById('rankHelpBtn')?.addEventListener('click',()=>{
   const help=document.getElementById('rankHelp');
+  if(!help) return;
+  help.style.display=help.style.display==='none'?'block':'none';
+});
+document.getElementById('dnaHelpBtn')?.addEventListener('click',()=>{
+  const help=document.getElementById('dnaHelp');
   if(!help) return;
   help.style.display=help.style.display==='none'?'block':'none';
 });
