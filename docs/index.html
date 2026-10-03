@@ -46,7 +46,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .on{background:#12303a;color:#eef7fa}
 .empty{padding:12px;border:1px dashed #23414c;border-radius:9px;color:#718791;font-size:11px;line-height:1.6}
 .foot{color:#657b84;font-size:10px;text-align:right;margin-top:10px}
-.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}
+.status{display:inline-flex;gap:5px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:#20dc92}.eventDates{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.eventBtn{border:1px solid #28515f;background:#0b1b20;color:#aebfc6;border-radius:8px;padding:6px 8px;font-size:11px;cursor:pointer}.eventBtn:hover,.eventBtn.on{border-color:#44d5ff;color:#eef7fa;background:#12303a}.eventDetail{margin-top:8px;padding:10px;border:1px solid #18313a;border-radius:9px;background:#09171c}.eventLead{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #142b33;font-size:12px}.eventLead:first-of-type{margin-top:7px}
 @media(max-width:1000px){.heat{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:850px){.top{align-items:flex-start;flex-direction:column}.k{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.heat{grid-template-columns:repeat(2,minmax(0,1fr))}.detail{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.heat{grid-template-columns:1fr}.member-grid{grid-template-columns:1fr}.memberData{grid-template-columns:1fr 1fr}}
@@ -248,6 +248,7 @@ function renderLeaderMemory(){
   }
 
   const rows=(mg.stocks||[]).filter(x=>x.top3_count>0).slice(0,5);
+  const events=[...(mg.events||[])].reverse();
   const rule='發動日：族群當日排名前3＋平均漲幅≥2%＋至少60%成員上漲';
 
   if(!mg.activation_days){
@@ -267,9 +268,30 @@ function renderLeaderMemory(){
           <small>當日第一 ${x.top1_count} 次</small>
         </div>
         <span class="score y">${x.top3_rate}%</span>
-      </div>`).join('');
-}
+      </div>`).join('')+
+    '<div class="mut" style="margin-top:10px">發動日回看 · 點日期查看當天</div>'+
+    '<div class="eventDates">'+events.map((e,i)=>`<button class="eventBtn" type="button" data-event-index="${i}">${e.date}</button>`).join('')+'</div>'+
+    '<div id="eventDetail"></div>';
 
+  const detail=document.getElementById('eventDetail');
+  const showEvent=index=>{
+    const e=events[index];
+    if(!e) return;
+    box.querySelectorAll('.eventBtn').forEach((btn,i)=>btn.classList.toggle('on',i===index));
+    detail.innerHTML=`
+      <div class="eventDetail">
+        <div><b>${e.date}</b> · 族群排名 #${e.rank}</div>
+        <div class="mut" style="margin-top:4px">族群平均 ${fmtPct(e.avg_pct)} · 上漲 ${e.up_count}/${e.priced_members}</div>
+        ${(e.leaders||[]).map((x,i)=>`
+          <div class="eventLead">
+            <span>#${i+1} ${x.name} <span class="mut">${x.code}</span></span>
+            <b class="${cls(x.pct)}">${fmtPct(x.pct)}</b>
+          </div>`).join('')}
+      </div>`;
+  };
+
+  box.querySelectorAll('.eventBtn').forEach((btn,i)=>btn.addEventListener('click',()=>showEvent(i)));
+}
 function renderDailyRanks(){
   const box = document.getElementById('dailyRanks');
   const dateEl = document.getElementById('dailyRankDate');
