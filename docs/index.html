@@ -44,7 +44,7 @@ button{cursor:pointer}
 .axisX{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);font-size:10px;color:#8aa0aa}
 .axisY{position:absolute;left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);transform-origin:left top;font-size:10px;color:#8aa0aa}
 .playbar{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:7px;margin-top:8px}
-.playbar button{border:1px solid var(--line);background:#08141c;color:#dce8ed;border-radius:8px;padding:7px 10px;font-size:11px}.playbar button:disabled{opacity:1;color:#7ee0b5;border-color:#244b3d;background:#0b1b16;cursor:default}
+.playbar button{border:1px solid var(--line);background:#08141c;color:#dce8ed;border-radius:8px;padding:7px 10px;font-size:11px}
 .playbar input{width:100%;accent-color:var(--amber)}
 .playbar span{font-size:10px;color:var(--muted);min-width:54px;text-align:right}
 .side{display:flex;flex-direction:column;gap:10px}
@@ -108,10 +108,10 @@ button{cursor:pointer}
         <div class="tooltip" id="tip"></div>
       </div>
       <div class="playbar">
-        <button id="loopStatus" type="button" disabled>● 持續運行</button>
-        <button id="resetBtn" type="button">從頭跑</button>
-        <input id="daySlider" type="range" min="1" max="20" value="1" aria-label="回放交易日">
-        <span id="dayLabel">第 1 / 20 日</span>
+        <button id="playBtn" type="button">▶ 播放</button>
+        <button id="resetBtn" type="button">重播</button>
+        <input id="daySlider" type="range" min="1" max="20" value="20" aria-label="回放交易日">
+        <span id="dayLabel">第 20 / 20 日</span>
       </div>
     </section>
 
@@ -205,7 +205,7 @@ button{cursor:pointer}
   };
 
   let range = 20;
-  let day = 1;
+  let day = 20;
   let playing = false;
   let timer = null;
   let level = 'sector';
@@ -216,7 +216,7 @@ button{cursor:pointer}
   const tip = document.getElementById('tip');
   const wrap = document.getElementById('chartWrap');
   const slider = document.getElementById('daySlider');
-  const loopStatus = document.getElementById('loopStatus');
+  const playBtn = document.getElementById('playBtn');
 
   function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
   function dataSet(){
@@ -253,11 +253,11 @@ button{cursor:pointer}
     document.querySelectorAll('#rangeBtns button').forEach(btn=>{
       btn.addEventListener('click',()=>{
         range=Number(btn.dataset.r);
-        day=1;
+        day=range;
         slider.max=String(range);
-        slider.value='1';
+        slider.value=String(day);
+        stop();
         renderAll();
-        ensureLoop();
       });
     });
   }
@@ -398,40 +398,31 @@ button{cursor:pointer}
     updateLabels(); renderChart(); renderSide();
   }
 
-  function ensureLoop(){
-    if(timer) return;
-    playing=true;
-    if(loopStatus) loopStatus.textContent='● 持續運行';
-    timer=setInterval(()=>{
-      day += 1;
-      if(day > range) day = 1;
-      slider.value=String(day);
-      updateLabels();
-      renderChart();
-      renderSide();
-    },520);
+  function stop(){
+    playing=false;
+    if(timer){clearInterval(timer);timer=null;}
+    playBtn.textContent='▶ 播放';
   }
-  function restartLoop(){
-    day=1;
-    slider.value='1';
-    updateLabels();
-    renderChart();
-    renderSide();
-    ensureLoop();
+  function start(){
+    stop();
+    playing=true;playBtn.textContent='❚❚ 暫停';
+    if(day>=range){day=1;slider.value='1';}
+    timer=setInterval(()=>{
+      day++;
+      if(day>range){stop();return;}
+      slider.value=String(day);
+      updateLabels();renderChart();renderSide();
+    },450);
   }
 
   slider.addEventListener('input',()=>{
-    day=Number(slider.value);
-    updateLabels();
-    renderChart();
-    renderSide();
-    ensureLoop();
+    stop();day=Number(slider.value);updateLabels();renderChart();renderSide();
   });
-  document.getElementById('resetBtn').addEventListener('click',restartLoop);
+  playBtn.addEventListener('click',()=>playing?stop():start());
+  document.getElementById('resetBtn').addEventListener('click',()=>{stop();day=1;slider.value='1';updateLabels();renderChart();renderSide();});
   document.getElementById('backBtn').addEventListener('click',goBack);
 
   renderAll();
-  ensureLoop();
 })();
 </script>
 </body>
