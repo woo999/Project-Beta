@@ -187,7 +187,7 @@ def build_daily_rankings(groups, histories):
         "days": days,
     }
 
-def build_leader_memory(groups, daily_rankings):
+def build_leader_memory(groups, daily_rankings, histories):
     result = {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "definition": {
@@ -195,11 +195,21 @@ def build_leader_memory(groups, daily_rankings):
             "leader_hit": "stock appears in that group's top 3 daily returns on an activation day",
             "top1_hit": "stock ranks #1 by daily return inside the group on an activation day",
             "note": "close-to-close daily data only; this does not measure intraday first mover timing",
+            "follow_through": "after a stock is top 3 on an activation day, measure close-to-close return 1/3/5 market trading days later; missing future prices are excluded",
         },
         "ranges": {},
     }
 
     all_days = daily_rankings.get("days", [])
+    day_dates = [d.get("date") for d in all_days if d.get("date")]
+    day_index = {d: i for i, d in enumerate(day_dates)}
+    close_by_code_date = {}
+    for code, rows in histories.items():
+        close_by_code_date[code] = {
+            r.get("date"): r.get("close")
+            for r in rows
+            if r.get("date") and isinstance(r.get("close"), (int, float)) and r.get("close") > 0
+        }
 
     for sessions in RANGES:
         days = all_days[-min(len(all_days), sessions):]
@@ -216,6 +226,7 @@ def build_leader_memory(groups, daily_rankings):
                     "top1_count": 0,
                     "leader_pct_sum": 0.0,
                     "leader_pct_obs": 0,
+                    "follow_returns": {"1": [], "3": [], "5": []},
                 }
                 for code, name in member_meta.items()
             }
@@ -258,15 +269,39 @@ def build_leader_memory(groups, daily_rankings):
                         counts[code]["leader_pct_sum"] += pct
                         counts[code]["leader_pct_obs"] += 1
 
+                    event_date = day.get("date")
+                    event_pos = day_index.get(event_date)
+                    base_close = close_by_code_date.get(code, {}).get(event_date)
+                    if event_pos is not None and isinstance(base_close, (int, float)) and base_close > 0:
+                        for horizon in (1, 3, 5):
+                            target_pos = event_pos + horizon
+                            if target_pos >= len(day_dates):
+                                continue
+                            target_date = day_dates[target_pos]
+                            target_close = close_by_code_date.get(code, {}).get(target_date)
+                            if isinstance(target_close, (int, float)) and target_close > 0:
+                                ret = round((target_close / base_close - 1) * 100, 4)
+                                counts[code]["follow_returns"][str(horizon)].append(ret)
+
             activation_days = len(events)
             stocks = []
             for item in counts.values():
                 obs = item.pop("leader_pct_obs")
                 pct_sum = item.pop("leader_pct_sum")
+                follow_returns = item.pop("follow_returns")
                 item["activation_days"] = activation_days
                 item["top3_rate"] = round(item["top3_count"] / activation_days * 100, 2) if activation_days else 0
                 item["top1_rate"] = round(item["top1_count"] / activation_days * 100, 2) if activation_days else 0
                 item["avg_pct_when_leader"] = round(pct_sum / obs, 4) if obs else None
+                item["follow_through"] = {}
+                for horizon in ("1", "3", "5"):
+                    vals = follow_returns.get(horizon, [])
+                    samples = len(vals)
+                    item["follow_through"][horizon] = {
+                        "samples": samples,
+                        "avg_return": round(sum(vals) / samples, 4) if samples else None,
+                        "win_rate": round(sum(1 for v in vals if v > 0) / samples * 100, 2) if samples else None,
+                    }
                 stocks.append(item)
 
             stocks.sort(key=lambda x: (
@@ -409,7 +444,7 @@ def main():
     write_json(SUMMARY_PATH, build_summary(groups, histories, latest))
     daily_rankings = build_daily_rankings(groups, histories)
     write_json(DAILY_RANKINGS_PATH, daily_rankings)
-    write_json(LEADER_MEMORY_PATH, build_leader_memory(groups, daily_rankings))
+    write_json(LEADER_MEMORY_PATH, build_leader_memory(groups, daily_rankings, histories))
     write_json(STATUS_PATH, {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "requested_stocks": len(members),
