@@ -12,6 +12,7 @@ HISTORY_DIR = ROOT / "docs" / "data" / "history"
 LATEST_PATH = ROOT / "docs" / "data" / "latest.json"
 SUMMARY_PATH = ROOT / "docs" / "data" / "summary.json"
 DAILY_RANKINGS_PATH = ROOT / "docs" / "data" / "daily_rankings.json"
+LEADER_MEMORY_PATH = ROOT / "docs" / "data" / "leader_memory.json"
 STATUS_PATH = ROOT / "docs" / "data" / "market_status.json"
 API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
@@ -185,6 +186,106 @@ def build_daily_rankings(groups, histories):
         "days": days,
     }
 
+def build_leader_memory(groups, daily_rankings):
+    result = {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "definition": {
+            "activation_day": "group rank <= 3 AND group average daily return >= 2% AND up ratio >= 60%",
+            "leader_hit": "stock appears in that group's top 3 daily returns on an activation day",
+            "top1_hit": "stock ranks #1 by daily return inside the group on an activation day",
+            "note": "close-to-close daily data only; this does not measure intraday first mover timing",
+        },
+        "ranges": {},
+    }
+
+    all_days = daily_rankings.get("days", [])
+
+    for sessions in RANGES:
+        days = all_days[-min(len(all_days), sessions):]
+        group_out = []
+
+        for g in groups.get("groups", []):
+            group_name = g["name"]
+            member_meta = {m["code"]: m["name"] for m in g.get("members", [])}
+            counts = {
+                code: {
+                    "code": code,
+                    "name": name,
+                    "top3_count": 0,
+                    "top1_count": 0,
+                    "leader_pct_sum": 0.0,
+                    "leader_pct_obs": 0,
+                }
+                for code, name in member_meta.items()
+            }
+
+            events = []
+            for day in days:
+                gr = next((x for x in day.get("groups", []) if x.get("name") == group_name), None)
+                if not gr:
+                    continue
+                priced = gr.get("priced_members") or 0
+                up_ratio = (gr.get("up_count") or 0) / priced if priced else 0
+                is_activation = (
+                    (gr.get("rank") or 999) <= 3
+                    and isinstance(gr.get("avg_pct"), (int, float))
+                    and gr["avg_pct"] >= 2
+                    and up_ratio >= 0.60
+                )
+                if not is_activation:
+                    continue
+
+                leaders = gr.get("leaders", [])[:3]
+                events.append({
+                    "date": day["date"],
+                    "rank": gr.get("rank"),
+                    "avg_pct": gr.get("avg_pct"),
+                    "up_count": gr.get("up_count"),
+                    "priced_members": priced,
+                    "leaders": leaders,
+                })
+
+                for i, leader in enumerate(leaders):
+                    code = leader.get("code")
+                    if code not in counts:
+                        continue
+                    counts[code]["top3_count"] += 1
+                    if i == 0:
+                        counts[code]["top1_count"] += 1
+                    pct = leader.get("pct")
+                    if isinstance(pct, (int, float)):
+                        counts[code]["leader_pct_sum"] += pct
+                        counts[code]["leader_pct_obs"] += 1
+
+            activation_days = len(events)
+            stocks = []
+            for item in counts.values():
+                obs = item.pop("leader_pct_obs")
+                pct_sum = item.pop("leader_pct_sum")
+                item["activation_days"] = activation_days
+                item["top3_rate"] = round(item["top3_count"] / activation_days * 100, 2) if activation_days else 0
+                item["top1_rate"] = round(item["top1_count"] / activation_days * 100, 2) if activation_days else 0
+                item["avg_pct_when_leader"] = round(pct_sum / obs, 4) if obs else None
+                stocks.append(item)
+
+            stocks.sort(key=lambda x: (
+                x["top3_count"],
+                x["top1_count"],
+                x["avg_pct_when_leader"] if x["avg_pct_when_leader"] is not None else -999999
+            ), reverse=True)
+
+            group_out.append({
+                "name": group_name,
+                "activation_days": activation_days,
+                "events": events,
+                "stocks": stocks,
+            })
+
+        result["ranges"][str(sessions)] = {"groups": group_out}
+
+    return result
+
+
 def build_summary(groups, histories, latest):
     now = datetime.now(timezone.utc).isoformat()
     stock_stats = {}
@@ -305,7 +406,9 @@ def main():
         "stocks": latest,
     })
     write_json(SUMMARY_PATH, build_summary(groups, histories, latest))
-    write_json(DAILY_RANKINGS_PATH, build_daily_rankings(groups, histories))
+    daily_rankings = build_daily_rankings(groups, histories)
+    write_json(DAILY_RANKINGS_PATH, daily_rankings)
+    write_json(LEADER_MEMORY_PATH, build_leader_memory(groups, daily_rankings))
     write_json(STATUS_PATH, {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "requested_stocks": len(members),
