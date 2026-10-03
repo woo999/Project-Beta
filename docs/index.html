@@ -137,6 +137,11 @@ const cls = v => Number.isFinite(v) ? (v > 0 ? 'up' : v < 0 ? 'down' : '') : '';
 const fmtPrice = v => Number.isFinite(v) ? v.toLocaleString('zh-TW',{maximumFractionDigits:2}) : '—';
 const fmtMoney = v => Number.isFinite(v) ? (v/100000000).toLocaleString('zh-TW',{maximumFractionDigits:2}) + ' 億' : '—';
 const fmtVolume = v => Number.isFinite(v) ? Math.round(v/1000).toLocaleString('zh-TW') + ' 張' : '—';
+const fmtFollow = (ft,h) => {
+  const x=ft?.[String(h)];
+  if(!x || !x.samples) return '後'+h+'日 —';
+  return '後'+h+'日 '+fmtPct(x.avg_return)+' · 勝率 '+Number(x.win_rate).toFixed(0)+'% · n='+x.samples;
+};
 const rangeText = value => value === 1 ? '今日' : value === 250 ? '1 年' : value + ' 日';
 const nearText = value => value === 1 ? '今日' : value === 250 ? '近 1 年' : '近 ' + value + ' 日';
 
@@ -266,9 +271,13 @@ function renderLeaderMemory(){
           <small>${x.code}</small>
           <small>前三出現 ${x.top3_count}/${mg.activation_days} ｜ ${x.top3_rate}%</small>
           <small>當日第一 ${x.top1_count} 次</small>
+          <small class="${cls(x.follow_through?.['1']?.avg_return)}">${fmtFollow(x.follow_through,1)}</small>
+          <small class="${cls(x.follow_through?.['3']?.avg_return)}">${fmtFollow(x.follow_through,3)}</small>
+          <small class="${cls(x.follow_through?.['5']?.avg_return)}">${fmtFollow(x.follow_through,5)}</small>
         </div>
         <span class="score y">${x.top3_rate}%</span>
       </div>`).join('')+
+    '<div class="mut" style="margin-top:8px">後續性＝該股在發動日進前三後，以當日收盤為基準，觀察後 1／3／5 個交易日。</div>'+
     '<div class="mut" style="margin-top:10px">發動日回看 · 點日期查看當天</div>'+
     '<div class="eventDates">'+events.map((e,i)=>`<button class="eventBtn" type="button" data-event-index="${i}">${e.date}</button>`).join('')+'</div>'+
     '<div id="eventDetail"></div>';
