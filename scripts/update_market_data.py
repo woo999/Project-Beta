@@ -197,6 +197,7 @@ def build_leader_memory(groups, daily_rankings, histories):
             "note": "close-to-close daily data only; this does not measure intraday first mover timing",
             "follow_through": "after a stock is top 3 on an activation day, measure close-to-close return 1/3/5 market trading days later; missing future prices are excluded",
             "group_follow_through": "for each activation event, average constituent close-to-close returns from activation-day close to 1/3/5 market trading days later; then average those event returns and report positive-event win rate",
+            "leader_position_score": "on each activation day rank all priced members by daily pct; first place scores 100 and last place scores 0, linearly scaled in between; report the stock's average score across activation days",
         },
         "ranges": {},
     }
@@ -205,11 +206,17 @@ def build_leader_memory(groups, daily_rankings, histories):
     day_dates = [d.get("date") for d in all_days if d.get("date")]
     day_index = {d: i for i, d in enumerate(day_dates)}
     close_by_code_date = {}
+    pct_by_code_date = {}
     for code, rows in histories.items():
         close_by_code_date[code] = {
             r.get("date"): r.get("close")
             for r in rows
             if r.get("date") and isinstance(r.get("close"), (int, float)) and r.get("close") > 0
+        }
+        pct_by_code_date[code] = {
+            r.get("date"): r.get("pct")
+            for r in rows
+            if r.get("date") and isinstance(r.get("pct"), (int, float))
         }
 
     for sessions in RANGES:
@@ -227,6 +234,9 @@ def build_leader_memory(groups, daily_rankings, histories):
                     "top1_count": 0,
                     "leader_pct_sum": 0.0,
                     "leader_pct_obs": 0,
+                    "rank_sum": 0.0,
+                    "position_score_sum": 0.0,
+                    "position_obs": 0,
                     "follow_returns": {"1": [], "3": [], "5": []},
                 }
                 for code, name in member_meta.items()
@@ -253,6 +263,21 @@ def build_leader_memory(groups, daily_rankings, histories):
                 event_date = day.get("date")
                 event_pos = day_index.get(event_date)
                 event_group_follow = {}
+
+                ranked_members = []
+                for code, name in member_meta.items():
+                    pct = pct_by_code_date.get(code, {}).get(event_date)
+                    if isinstance(pct, (int, float)):
+                        ranked_members.append((code, name, pct))
+                ranked_members.sort(key=lambda x: x[2], reverse=True)
+                ranked_count = len(ranked_members)
+                for rank_pos, (code, _name, _pct) in enumerate(ranked_members, 1):
+                    if code not in counts:
+                        continue
+                    position_score = 100.0 if ranked_count <= 1 else (ranked_count - rank_pos) / (ranked_count - 1) * 100
+                    counts[code]["rank_sum"] += rank_pos
+                    counts[code]["position_score_sum"] += position_score
+                    counts[code]["position_obs"] += 1
 
                 if event_pos is not None:
                     for horizon in (1, 3, 5):
@@ -320,11 +345,17 @@ def build_leader_memory(groups, daily_rankings, histories):
             for item in counts.values():
                 obs = item.pop("leader_pct_obs")
                 pct_sum = item.pop("leader_pct_sum")
+                rank_sum = item.pop("rank_sum")
+                position_score_sum = item.pop("position_score_sum")
+                position_obs = item.pop("position_obs")
                 follow_returns = item.pop("follow_returns")
                 item["activation_days"] = activation_days
                 item["top3_rate"] = round(item["top3_count"] / activation_days * 100, 2) if activation_days else 0
                 item["top1_rate"] = round(item["top1_count"] / activation_days * 100, 2) if activation_days else 0
                 item["avg_pct_when_leader"] = round(pct_sum / obs, 4) if obs else None
+                item["position_samples"] = position_obs
+                item["avg_rank_when_activation"] = round(rank_sum / position_obs, 4) if position_obs else None
+                item["leader_position_score"] = round(position_score_sum / position_obs, 2) if position_obs else None
                 item["follow_through"] = {}
                 for horizon in ("1", "3", "5"):
                     vals = follow_returns.get(horizon, [])
@@ -337,8 +368,9 @@ def build_leader_memory(groups, daily_rankings, histories):
                 stocks.append(item)
 
             stocks.sort(key=lambda x: (
-                x["top3_count"],
+                x["leader_position_score"] if x["leader_position_score"] is not None else -999999,
                 x["top1_count"],
+                x["top3_count"],
                 x["avg_pct_when_leader"] if x["avg_pct_when_leader"] is not None else -999999
             ), reverse=True)
 
