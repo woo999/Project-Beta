@@ -10,13 +10,12 @@ ROOT = Path(__file__).resolve().parents[1]
 GROUPS_PATH = ROOT / "docs" / "data" / "groups.json"
 HISTORY_DIR = ROOT / "docs" / "data" / "history"
 LATEST_PATH = ROOT / "docs" / "data" / "latest.json"
+SUMMARY_PATH = ROOT / "docs" / "data" / "summary.json"
 STATUS_PATH = ROOT / "docs" / "data" / "market_status.json"
 API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
-
-# Current UI supports up to 1 year. Use 400 calendar days so the archive
-# comfortably contains a full Taiwan-market year including holidays.
 BACKFILL_DAYS = 400
+RANGES = (20, 60, 120, 250)
 
 def read_json(path, default=None):
     try:
@@ -79,6 +78,94 @@ def recompute_pct(rows):
             r["pct"] = None
     return rows
 
+def stock_range_stats(rows, sessions):
+    valid = [r for r in rows if isinstance(r.get("close"), (int, float)) and r.get("close") > 0]
+    if not valid:
+        return None
+    tail = valid[-min(len(valid), sessions + 1):]
+    latest = tail[-1]
+    first = tail[0]
+    period_return = None
+    if len(tail) >= 2 and first["close"]:
+        period_return = round((latest["close"] / first["close"] - 1) * 100, 4)
+    session_rows = valid[-min(len(valid), sessions):]
+    total_money = sum((r.get("money") or 0) for r in session_rows)
+    positive_days = sum(1 for r in session_rows if isinstance(r.get("pct"), (int, float)) and r["pct"] > 0)
+    negative_days = sum(1 for r in session_rows if isinstance(r.get("pct"), (int, float)) and r["pct"] < 0)
+    avg_pct = None
+    pcts = [r["pct"] for r in session_rows if isinstance(r.get("pct"), (int, float))]
+    if pcts:
+        avg_pct = round(sum(pcts) / len(pcts), 4)
+    return {
+        "sessions": len(session_rows),
+        "start_date": first.get("date"),
+        "end_date": latest.get("date"),
+        "period_return": period_return,
+        "avg_daily_pct": avg_pct,
+        "positive_days": positive_days,
+        "negative_days": negative_days,
+        "total_money": total_money,
+        "latest_close": latest.get("close"),
+        "latest_pct": latest.get("pct"),
+        "latest_money": latest.get("money"),
+        "latest_volume": latest.get("volume"),
+    }
+
+def build_summary(groups, histories, latest):
+    now = datetime.now(timezone.utc).isoformat()
+    stock_stats = {}
+    for code, rows in histories.items():
+        stock_stats[code] = {str(n): stock_range_stats(rows, n) for n in RANGES}
+
+    ranges = {}
+    for n in RANGES:
+        key = str(n)
+        group_stats = []
+        for g in groups.get("groups", []):
+            member_stats = []
+            for m in g.get("members", []):
+                st = stock_stats.get(m["code"], {}).get(key)
+                if st and st.get("period_return") is not None:
+                    member_stats.append({
+                        "code": m["code"],
+                        "name": m["name"],
+                        **st,
+                    })
+            returns = [x["period_return"] for x in member_stats if x.get("period_return") is not None]
+            latest_pcts = [x["latest_pct"] for x in member_stats if isinstance(x.get("latest_pct"), (int, float))]
+            total_money = sum((x.get("total_money") or 0) for x in member_stats)
+            latest_money = sum((x.get("latest_money") or 0) for x in member_stats)
+            avg_return = round(sum(returns) / len(returns), 4) if returns else None
+            avg_latest_pct = round(sum(latest_pcts) / len(latest_pcts), 4) if latest_pcts else None
+            leaders = sorted(member_stats, key=lambda x: x.get("period_return") if x.get("period_return") is not None else -999999, reverse=True)
+            group_stats.append({
+                "name": g["name"],
+                "member_count": len(g.get("members", [])),
+                "avg_return": avg_return,
+                "avg_latest_pct": avg_latest_pct,
+                "total_money": total_money,
+                "latest_money": latest_money,
+                "leaders": leaders[:5],
+            })
+        ordered = sorted(group_stats, key=lambda x: x.get("avg_return") if x.get("avg_return") is not None else -999999, reverse=True)
+        ranges[key] = {
+            "groups": group_stats,
+            "strongest_group": ordered[0]["name"] if ordered and ordered[0].get("avg_return") is not None else None,
+            "strongest_group_return": ordered[0]["avg_return"] if ordered and ordered[0].get("avg_return") is not None else None,
+        }
+
+    latest_money_unique = sum((x.get("money") or 0) for x in latest.values())
+    latest_date = max((x.get("date") for x in latest.values() if x.get("date")), default=None)
+
+    return {
+        "updated_at": now,
+        "latest_date": latest_date,
+        "tracked_stock_count": len(latest),
+        "latest_money_unique": latest_money_unique,
+        "ranges": ranges,
+        "stocks": stock_stats,
+    }
+
 def main():
     groups = read_json(GROUPS_PATH, {})
     members = {}
@@ -90,6 +177,7 @@ def main():
     today = date.today()
     default_start = today - timedelta(days=BACKFILL_DAYS)
     latest = {}
+    histories = {}
     failures = []
     successes = 0
     earliest_seen = None
@@ -114,9 +202,8 @@ def main():
                     if row.get("date"):
                         by_date[row["date"]] = row
 
-            rows = [by_date[d] for d in sorted(by_date)]
-            # Keep the complete backfill window; do not silently drop old rows.
-            rows = recompute_pct(rows)
+            rows = recompute_pct([by_date[d] for d in sorted(by_date)])
+            histories[code] = rows
             archive = {
                 "code": code,
                 "name": name,
@@ -136,8 +223,6 @@ def main():
         except Exception as e:
             failures.append({"code": code, "name": name, "error": str(e)})
             print(f"[{idx}/{len(members)}] ERROR {code} {name}: {e}")
-
-        # Anonymous FinMind quota is 300/hour; 78 stocks is comfortably below it.
         time.sleep(0.25)
 
     write_json(LATEST_PATH, {
@@ -145,6 +230,7 @@ def main():
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "stocks": latest,
     })
+    write_json(SUMMARY_PATH, build_summary(groups, histories, latest))
     write_json(STATUS_PATH, {
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "requested_stocks": len(members),
@@ -155,7 +241,6 @@ def main():
         "backfill_days": BACKFILL_DAYS,
     })
 
-    # Fail the Action if a meaningful portion failed, but still save diagnostics.
     if len(failures) > max(3, len(members) // 10):
         raise SystemExit(f"Too many failures: {len(failures)}/{len(members)}")
 
