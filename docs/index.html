@@ -115,8 +115,9 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
           <b>長短結構判讀</b><br>
           長期位置＝1年×20%＋120日×30%＋60日×50%的加權名次，越近期權重越高。加權≤5.5且60日≤6＝長期強勢；加權≥11.5且60日≥11＝長期弱勢；其餘＝長期中性。<br>
           長期趨勢＝比較1年與60日：60日比1年至少前進4名＝長線轉強；退後4名＝長線轉弱；其餘＝長線穩定。<br>
+          短期位置＝20日×20%＋10日×30%＋5日×50%的加權名次。≤5.5＝短期強勢區；≥11.5＝短期弱勢區；其餘＝短期中位。<br>
           短期速度＝20日→10日→5日。淨前進≥6且兩段都前進＝短期急升；淨前進≥3＝短期升溫；淨退後≥6且兩段都退＝短期急退；淨退後≥3＝短期退潮。兩段方向相反且波動明顯＝短期震盪；其餘＝短期整理。<br>
-          最後再把長期位置與短期方向合成「主流續強／強勢退潮／弱勢反彈／弱勢續弱／中性轉強…」。這是市場結構描述，不是進出場指令。
+          最後把長期位置、長期趨勢、短期位置、短期速度一起合成「主流續強／主流高檔／強勢退潮／短線強勢／弱勢反彈／弱勢續弱…」。這是市場結構描述，不是進出場指令。
         </div>
         <div id="rankTrend" class="rankCompact"><div class="empty">載入中…</div></div>
       </div>
@@ -257,10 +258,11 @@ function sectorState(name){
   const allReady=[250,120,60,20,10,5].every(p=>Number.isFinite(ranks[p]));
   if(!allReady){
     return {
-      longLabel:'資料不足',longClass:'stateNeutral',
-      longTrend:'—',shortLabel:'資料不足',shortClass:'stateFlat',
+      longLabel:'資料不足',longClass:'stateNeutral',longTrend:'—',
+      shortLevel:'資料不足',shortLevelClass:'stateNeutral',
+      shortLabel:'資料不足',shortClass:'stateFlat',
       phase:'資料不足',phaseClass:'phaseNeutral',
-      longWeighted:null,longDelta:null,shortNet:null,shortConsistency:0,ranks
+      longWeighted:null,longDelta:null,shortWeighted:null,shortNet:null,shortConsistency:0,ranks
     };
   }
 
@@ -276,6 +278,14 @@ function sectorState(name){
   let longTrend='長線穩定';
   if(longDelta>=4) longTrend='長線轉強';
   else if(longDelta<=-4) longTrend='長線轉弱';
+
+  const shortWeighted=ranks[20]*0.20+ranks[10]*0.30+ranks[5]*0.50;
+  let shortLevel='短期中位', shortLevelClass='stateNeutral';
+  if(shortWeighted<=5.5){
+    shortLevel='短期強勢'; shortLevelClass='stateStrong';
+  }else if(shortWeighted>=11.5){
+    shortLevel='短期弱勢'; shortLevelClass='stateWeak';
+  }
 
   const d1=ranks[20]-ranks[10];
   const d2=ranks[10]-ranks[5];
@@ -300,22 +310,52 @@ function sectorState(name){
 
   const shortUp=shortLabel==='短期急升'||shortLabel==='短期升溫';
   const shortDown=shortLabel==='短期急退'||shortLabel==='短期退潮';
+  const shortStrong=shortLevel==='短期強勢';
+  const shortWeak=shortLevel==='短期弱勢';
   let phase='中性整理', phaseClass='phaseNeutral';
 
   if(longLabel==='長期強勢'){
-    if(shortUp){ phase='主流續強'; phaseClass='phaseUp'; }
-    else if(shortDown){ phase='強勢退潮'; phaseClass='phaseDown'; }
-    else { phase='強勢整理'; phaseClass='phaseNeutral'; }
+    if(shortDown){
+      phase='強勢退潮'; phaseClass='phaseDown';
+    }else if(shortStrong && shortUp){
+      phase='主流續強'; phaseClass='phaseUp';
+    }else if(shortStrong){
+      phase='主流高檔'; phaseClass='phaseUp';
+    }else if(shortWeak){
+      phase='主流失速'; phaseClass='phaseDown';
+    }else if(shortUp){
+      phase='主流回升'; phaseClass='phaseUp';
+    }else{
+      phase='強勢整理'; phaseClass='phaseNeutral';
+    }
   }else if(longLabel==='長期弱勢'){
-    if(shortUp){ phase='弱勢反彈'; phaseClass='phaseUp'; }
-    else if(shortDown){ phase='弱勢續弱'; phaseClass='phaseDown'; }
-    else { phase='弱勢盤整'; phaseClass='phaseNeutral'; }
-  }else{
     if(shortUp){
-      phase=longTrend==='長線轉強'?'結構轉強':'中性轉強';
+      phase='弱勢反彈'; phaseClass='phaseUp';
+    }else if(shortWeak && shortDown){
+      phase='弱勢續弱'; phaseClass='phaseDown';
+    }else if(shortWeak){
+      phase='弱勢低檔'; phaseClass='phaseDown';
+    }else if(shortStrong){
+      phase='弱轉強觀察'; phaseClass='phaseUp';
+    }else{
+      phase='弱勢盤整'; phaseClass='phaseNeutral';
+    }
+  }else{
+    if(shortStrong && shortUp){
+      phase=longTrend==='長線轉強'?'結構轉強':'短線轉強';
+      phaseClass='phaseUp';
+    }else if(shortStrong){
+      phase='短線強勢'; phaseClass='phaseUp';
+    }else if(shortWeak && shortDown){
+      phase=longTrend==='長線轉弱'?'結構轉弱':'短線轉弱';
+      phaseClass='phaseDown';
+    }else if(shortWeak){
+      phase='短線弱勢'; phaseClass='phaseDown';
+    }else if(shortUp){
+      phase=longTrend==='長線轉強'?'結構轉強':'中性升溫';
       phaseClass='phaseUp';
     }else if(shortDown){
-      phase=longTrend==='長線轉弱'?'結構轉弱':'中性轉弱';
+      phase=longTrend==='長線轉弱'?'結構轉弱':'中性退潮';
       phaseClass='phaseDown';
     }else{
       phase=longTrend==='長線轉強'?'長線轉強中':longTrend==='長線轉弱'?'長線轉弱中':'中性整理';
@@ -325,10 +365,9 @@ function sectorState(name){
 
   return {
     longLabel,longClass,longTrend,
-    shortLabel,shortClass,phase,phaseClass,
-    longWeighted,longDelta,shortNet,
-    shortConsistency:Math.max(improveSteps,weakenSteps),
-    ranks
+    shortLevel,shortLevelClass,shortLabel,shortClass,
+    phase,phaseClass,longWeighted,longDelta,shortWeighted,shortNet,
+    shortConsistency:Math.max(improveSteps,weakenSteps),ranks
   };
 }
 
@@ -376,6 +415,7 @@ function renderRankTrend(){
           <div class="stateLine">
             <span class="stateTag phaseTag ${r.state.phaseClass}">${r.state.phase}</span>
             <span class="stateTag ${r.state.longClass}">${r.state.longLabel}</span>
+            <span class="stateTag ${r.state.shortLevelClass}">${r.state.shortLevel}</span>
             <span class="stateTag ${r.state.shortClass}">${r.state.shortLabel}</span>
           </div>
           <div class="structureMeta">長 ${r.state.ranks[250]?'1年#'+r.state.ranks[250]:'—'}→${r.state.ranks[120]?'120#'+r.state.ranks[120]:'—'}→${r.state.ranks[60]?'60#'+r.state.ranks[60]:'—'} · 短 ${r.state.ranks[20]?'20#'+r.state.ranks[20]:'—'}→${r.state.ranks[10]?'10#'+r.state.ranks[10]:'—'}→${r.state.ranks[5]?'5#'+r.state.ranks[5]:'—'}</div>
@@ -647,7 +687,8 @@ function openSector(index){
         1年 #${structure.ranks[250]??'—'} → 120日 #${structure.ranks[120]??'—'} → 60日 #${structure.ranks[60]??'—'}
       </div>
       <div class="mut" style="margin-top:5px">
-        ${structure.shortLabel} · 20日 #${structure.ranks[20]??'—'} → 10日 #${structure.ranks[10]??'—'} → 5日 #${structure.ranks[5]??'—'}
+        ${structure.shortLevel} · ${structure.shortLabel} · 短期加權名次 ${Number.isFinite(structure.shortWeighted)?structure.shortWeighted.toFixed(1):'—'}<br>
+        20日 #${structure.ranks[20]??'—'} → 10日 #${structure.ranks[10]??'—'} → 5日 #${structure.ranks[5]??'—'}
         · 淨變化 ${Number.isFinite(structure.shortNet)?(structure.shortNet>0?'↑'+structure.shortNet:structure.shortNet<0?'↓'+Math.abs(structure.shortNet):'→'):'—'}
         · 同向 ${structure.shortConsistency}/2
       </div>
