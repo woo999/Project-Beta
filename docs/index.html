@@ -98,6 +98,11 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       </div>
 
       <div class="c">
+        <div class="title"><b>最新交易日族群排名</b><span class="mut" id="dailyRankDate">載入中…</span></div>
+        <div id="dailyRanks"><div class="empty">載入中…</div></div>
+      </div>
+
+      <div class="c">
         <div class="title"><b>資料狀態</b><span class="mut">每日收盤更新</span></div>
         <div id="sourceInfo" class="empty">載入中…</div>
       </div>
@@ -118,6 +123,7 @@ let selectedRange = 60;
 let selectedGroupIndex = null;
 let LATEST = {};
 let SUMMARY = null;
+let DAILY = null;
 
 const heat = document.getElementById('heat');
 const sectorDetail = document.getElementById('sectorDetail');
@@ -178,6 +184,30 @@ function renderHeat(){
   });
 }
 
+function latestDailyDay(){
+  const days = DAILY?.days || [];
+  return days.length ? days[days.length-1] : null;
+}
+
+function renderDailyRanks(){
+  const box = document.getElementById('dailyRanks');
+  const dateEl = document.getElementById('dailyRankDate');
+  const day = latestDailyDay();
+  if(!day){
+    dateEl.textContent='尚未產生';
+    box.innerHTML='<div class="empty">每日族群排名資料尚未產生。</div>';
+    return;
+  }
+  dateEl.textContent=day.date;
+  const top=(day.groups||[]).slice(0,5);
+  box.innerHTML=top.map(g=>`
+    <div class="row">
+      <span>#${g.rank}</span>
+      <div><b>${g.name}</b><small>上漲 ${g.up_count}/${g.priced_members} · ≥3% ${g.gt3_count}</small></div>
+      <span class="score ${cls(g.avg_pct)}">${fmtPct(g.avg_pct)}</span>
+    </div>`).join('');
+}
+
 function renderLeaders(){
   const box=document.getElementById('leaders');
   let rows=[];
@@ -207,6 +237,7 @@ function openSector(index){
   renderHeat();
   renderLeaders();
 
+  const todayGroup = latestDailyDay()?.groups?.find(x=>x.name===g.name);
   const rows=(g.members||[]).map(m=>({
     ...m,
     latest:LATEST[m.code]||{},
@@ -218,6 +249,11 @@ function openSector(index){
       <div><h3>${g.name}</h3><div class="mut">${rows.length} 檔 · ${nearText(selectedRange)}</div></div>
       <span class="mut">紅＝上漲 · 綠＝下跌</span>
     </div>
+    ${todayGroup ? `
+      <div class="empty" style="margin-top:10px">
+        今日族群排名：#${todayGroup.rank} · 平均 ${fmtPct(todayGroup.avg_pct)} · 上漲 ${todayGroup.up_count}/${todayGroup.priced_members} · 3%以上 ${todayGroup.gt3_count} 檔<br>
+        今日領漲前三：${(todayGroup.leaders||[]).map((x,i)=>'#'+(i+1)+' '+x.name+' '+fmtPct(x.pct)).join('　')}
+      </div>` : ''}
     <div class="member-grid">
       ${rows.map(x=>`
         <div class="member">
@@ -249,14 +285,16 @@ function setRange(value){
 async function loadData(){
   try{
     const stamp=Date.now();
-    const [latestRes,summaryRes,statusRes]=await Promise.all([
+    const [latestRes,summaryRes,dailyRes,statusRes]=await Promise.all([
       fetch('data/latest.json?v='+stamp),
       fetch('data/summary.json?v='+stamp),
+      fetch('data/daily_rankings.json?v='+stamp),
       fetch('data/market_status.json?v='+stamp)
     ]);
     if(!latestRes.ok||!summaryRes.ok) throw new Error('market data not ready');
     const latest=await latestRes.json();
     SUMMARY=await summaryRes.json();
+    DAILY=dailyRes.ok?await dailyRes.json():null;
     LATEST=latest.stocks||{};
     const status=statusRes.ok?await statusRes.json():null;
     document.getElementById('dataStatus').innerHTML='<span class="status"><span class="dot"></span>真實收盤資料已載入 · '+Object.keys(LATEST).length+' 檔</span>';
@@ -265,11 +303,11 @@ async function loadData(){
       '資料日期：'+(SUMMARY.latest_date||'—')+'<br>'+
       '歷史起點：'+(status?.earliest_date||'—')+'<br>'+
       '成功：'+(status?.successes??'—')+' / '+(status?.requested_stocks??'—')+' 檔';
-    renderTop();renderHeat();renderLeaders();
+    renderTop();renderHeat();renderLeaders();renderDailyRanks();
   }catch(err){
     document.getElementById('dataStatus').textContent='資料載入失敗，請稍後重新整理';
     document.getElementById('sourceInfo').textContent='summary.json 尚未部署完成或載入失敗。';
-    renderHeat();
+    renderHeat();renderDailyRanks();
   }
 }
 
