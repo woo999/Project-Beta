@@ -60,6 +60,9 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       <div class="sub">收盤版 · 你的族群 × 真實歷史行情</div>
     </div>
     <div class="tabs" id="rangeTabs">
+      <button class="tab" type="button" data-range="1">今日</button>
+      <button class="tab" type="button" data-range="5">5日</button>
+      <button class="tab" type="button" data-range="10">10日</button>
       <button class="tab" type="button" data-range="20">20日</button>
       <button class="tab on" type="button" data-range="60">60日</button>
       <button class="tab" type="button" data-range="120">120日</button>
@@ -134,16 +137,45 @@ const cls = v => Number.isFinite(v) ? (v > 0 ? 'up' : v < 0 ? 'down' : '') : '';
 const fmtPrice = v => Number.isFinite(v) ? v.toLocaleString('zh-TW',{maximumFractionDigits:2}) : '—';
 const fmtMoney = v => Number.isFinite(v) ? (v/100000000).toLocaleString('zh-TW',{maximumFractionDigits:2}) + ' 億' : '—';
 const fmtVolume = v => Number.isFinite(v) ? Math.round(v/1000).toLocaleString('zh-TW') + ' 張' : '—';
-const rangeText = value => value === 250 ? '1 年' : value + ' 日';
-const nearText = value => value === 250 ? '近 1 年' : '近 ' + value + ' 日';
+const rangeText = value => value === 1 ? '今日' : value === 250 ? '1 年' : value + ' 日';
+const nearText = value => value === 1 ? '今日' : value === 250 ? '近 1 年' : '近 ' + value + ' 日';
 
 function rangeSummary(){
+  if(selectedRange===1){
+    const day=latestDailyDay();
+    if(!day) return null;
+    const top=day.groups?.[0] || null;
+    return {
+      groups:(day.groups||[]).map(g=>({
+        name:g.name,
+        avg_return:g.avg_pct,
+        avg_latest_pct:g.avg_pct,
+        latest_money:g.total_money,
+        leaders:(g.leaders||[]).map(x=>({
+          code:x.code,name:x.name,period_return:x.pct,latest_pct:x.pct,
+          latest_money:x.money,latest_volume:x.volume,latest_close:x.close
+        }))
+      })),
+      strongest_group:top?.name || null,
+      strongest_group_return:top?.avg_pct ?? null
+    };
+  }
   return SUMMARY?.ranges?.[String(selectedRange)] || null;
 }
 function groupSummary(name){
   return rangeSummary()?.groups?.find(g=>g.name===name) || null;
 }
 function stockSummary(code){
+  if(selectedRange===1){
+    const q=LATEST[code];
+    return q ? {
+      period_return:q.pct,
+      latest_pct:q.pct,
+      latest_money:q.money,
+      latest_volume:q.volume,
+      latest_close:q.close
+    } : null;
+  }
   return SUMMARY?.stocks?.[code]?.[String(selectedRange)] || null;
 }
 
@@ -168,7 +200,7 @@ function renderHeat(){
       <div class="s ${selectedGroupIndex===i?'active':''}" data-index="${i}" role="button" tabindex="0" aria-label="查看 ${g.name}">
         <h2>${g.name}</h2>
         <div class="sectorReturn ${cls(gs?.avg_return)}">${fmtPct(gs?.avg_return)}</div>
-        <div class="mut">區間平均 · 今日均幅 <span class="${cls(gs?.avg_latest_pct)}">${fmtPct(gs?.avg_latest_pct)}</span></div>
+        <div class="mut">${selectedRange===1 ? "今日族群平均" : `區間平均 · 今日均幅 <span class="${cls(gs?.avg_latest_pct)}">${fmtPct(gs?.avg_latest_pct)}</span>`}</div>
         <div class="stocks">
           ${members.map(m=>{
             const q=LATEST[m.code];
@@ -205,6 +237,10 @@ function renderLeaderMemory(){
   }
 
   const g=GROUPS[selectedGroupIndex];
+  if(selectedRange===1){
+    box.innerHTML='<div class="empty">「今日」只看當日戰況，不計算領漲記憶率。請切到 5日、10日、20日、60日、120日或1年。</div>';
+    return;
+  }
   const mg=memoryGroup(g.name);
   if(!mg){
     box.innerHTML='<div class="empty">領漲記憶資料尚未產生。</div>';
@@ -254,6 +290,11 @@ function renderLeaders(){
   if(selectedGroupIndex!==null){
     const g=GROUPS[selectedGroupIndex];
     rows=(groupSummary(g.name)?.leaders||[]).slice(0,5);
+  } else if(selectedRange===1){
+    rows=Object.values(LATEST).map(q=>({
+      code:q.code,name:q.name,period_return:q.pct,
+      group:(GROUPS.find(g=>(g.members||[]).some(m=>m.code===q.code))?.name||'')
+    })).sort((a,b)=>(b.period_return??-999)-(a.period_return??-999)).slice(0,5);
   } else {
     rows=GROUPS.flatMap(g=>(g.members||[]).map(m=>{
       const st=stockSummary(m.code);
