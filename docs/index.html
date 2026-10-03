@@ -90,7 +90,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
         <div class="m"><b class="b">16</b><small>正式族群</small></div>
         <div class="m"><b>78</b><small>追蹤股票</small></div>
         <div class="m"><b id="selectedSector">—</b><small>目前選取族群</small></div>
-        <div class="m"><b class="b">v1</b><small>領漲 DNA 已啟用</small></div>
+        <div class="m"><b id="activationCount">—</b><small>目前期間發動日</small></div>
       </div>
     </div>
 
@@ -347,22 +347,26 @@ function memoryGroup(name){
 
 function renderLeaderDNA(){
   const box=document.getElementById('leaderDNA');
+  const activationEl=document.getElementById('activationCount');
   const label=document.getElementById('dnaRangeLabel');
   if(!box) return;
   if(label) label.textContent=nearText(selectedRange);
 
   if(selectedGroupIndex===null){
+    if(activationEl) activationEl.textContent='—';
     box.innerHTML='<div class="empty">先點一個族群，這裡才會顯示該族群每檔股票的 DNA。</div>';
     return;
   }
 
   if(selectedRange===1){
+    if(activationEl) activationEl.textContent='—';
     box.innerHTML='<div class="empty">「今日」樣本只有一天，不計算 DNA。請切到 5日以上。</div>';
     return;
   }
 
   const g=GROUPS[selectedGroupIndex];
   const mg=memoryGroup(g.name);
+  if(activationEl) activationEl.textContent=mg ? mg.activation_days+' 天' : '—';
   if(!mg || !mg.activation_days){
     box.innerHTML='<div class="empty">'+g.name+' 在這個期間沒有足夠的發動日樣本。</div>';
     return;
