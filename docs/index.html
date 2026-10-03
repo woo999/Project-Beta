@@ -118,7 +118,7 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 
       <div class="c">
         <div class="title">
-          <b>領漲 DNA v1</b>
+          <b>領漲 DNA</b>
           <div style="display:flex;gap:8px;align-items:center">
             <button class="tab" type="button" id="dnaHelpBtn">怎麼看？</button>
             <span class="mut" id="dnaRangeLabel">近 60 日</span>
@@ -412,13 +412,13 @@ function renderLeaderMemory(){
   if(label) label.textContent=nearText(selectedRange);
 
   if(selectedGroupIndex===null){
-    box.innerHTML='<div class="empty">先點一個族群。系統會統計該族群在「發動日」裡，哪些股票最常進入當日漲幅前三。</div>';
+    box.innerHTML='<div class="empty">先點一個族群，這裡會列出族群發動後的續強表現與每次發動日期。</div>';
     return;
   }
 
   const g=GROUPS[selectedGroupIndex];
   if(selectedRange===1){
-    box.innerHTML='<div class="empty">「今日」只看當日戰況，不計算領漲記憶率。請切到 5日、10日、20日、60日、120日或1年。</div>';
+    box.innerHTML='<div class="empty">「今日」只看當日戰況；發動日回看請切到 5日、10日、20日、60日、120日或1年。</div>';
     return;
   }
   const mg=memoryGroup(g.name);
@@ -431,7 +431,7 @@ function renderLeaderMemory(){
   const rule='發動日：族群當日排名前3＋平均漲幅≥2%＋至少60%成員上漲';
 
   if(!mg.activation_days){
-    box.innerHTML='<div class="empty">'+g.name+' 在這個期間沒有符合 v1 規則的發動日。<br>'+rule+'</div>';
+    box.innerHTML='<div class="empty">'+g.name+' 在這個期間沒有符合發動條件的日期。<br>'+rule+'</div>';
     return;
   }
 
