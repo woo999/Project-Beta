@@ -59,6 +59,15 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .wooAlertHelp{display:none;margin:-2px 0 10px;padding:11px 12px;border:1px solid #1c343e;background:#0b171c;border-radius:10px;color:#8fa4ad;font-size:10px;line-height:1.65}
 .wooAlertHelp b{color:#dce8ed}
 .wooAlertHelp.show{display:block}
+.wooHelpSection{margin-top:10px;padding-top:10px;border-top:1px solid #17303a}
+.wooHelpSection:first-child{margin-top:0;padding-top:0;border-top:0}
+.wooHelpTitle{font-size:11px;font-weight:900;color:#eef7fa;margin-bottom:6px}
+.wooHelpGrade{display:grid;grid-template-columns:42px 1fr;gap:7px;margin:4px 0}
+.wooHelpGrade b{font-size:10px}
+.wooHelpRule{border:1px solid #17303a;background:#09161b;border-radius:8px;padding:8px;margin-top:7px}
+.wooHelpRule strong{display:block;color:#dce8ed;font-size:10px;margin-bottom:4px}
+.wooHelpRule span{display:block;color:#8fa4ad;font-size:9px;line-height:1.6}
+
 @keyframes wooTicker{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 @media(prefers-reduced-motion:reduce){.wooMarqueeTrack{animation:none;padding-left:0}}
 
@@ -94,13 +103,59 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
     </div>
   </div>
   <div class="wooAlertHelp" id="wooAlertHelp">
-    <b>WOO ALERT 怎麼看</b><br>
-    格式：等級｜策略｜族群｜股票｜多/空｜持有天數｜狀態。<br>
-    <b>SSS</b>＝最高級，必須經過真正未參與開發的新資料驗證；目前先保留空白。<br>
-    <b>SS</b>＝目前統計最穩、可優先檢查；<b>A</b>＝可用但次一級；B／C只保留研究，不主動列入主要提醒。<br>
-    「明日開盤觀察」代表今天收盤後條件成立，下一交易日才進入觀察，不代表一定買進。<br>
-    持有天數是該策略目前回測使用的固定週期；實際交易仍要看隔日價格、跳空與風險。<br>
-    跑馬燈只顯示最新收盤資料日期的策略訊號，不把舊訊號當成今天的新訊號。
+    <div class="wooHelpSection">
+      <div class="wooHelpTitle">先看懂這一條</div>
+      跑馬燈格式：<b>等級｜策略｜族群｜股票｜多 / 空｜持有天數｜狀態</b><br>
+      「明日開盤觀察」＝今天收盤後條件才正式成立；目前回測基準是<b>下一交易日開盤進場</b>，不是今天收盤追價。
+    </div>
+
+    <div class="wooHelpSection">
+      <div class="wooHelpTitle">等級怎麼操作</div>
+      <div class="wooHelpGrade"><b>SSS</b><span>最高級。規則鎖定後，還要經過真正未參與開發的新行情驗證才會升級；目前沒有。</span></div>
+      <div class="wooHelpGrade"><b>SS</b><span>核心策略。看到時優先檢查，符合該策略原始進場規則才執行。</span></div>
+      <div class="wooHelpGrade"><b>A</b><span>可用策略，但統計穩定度或樣本品質低於 SS。可以做，但優先級低於 SS。</span></div>
+      <div class="wooHelpGrade"><b>B</b><span>只有部分優勢，先觀察、收集資料，不當主要實單策略。</span></div>
+      <div class="wooHelpGrade"><b>C</b><span>研究級。現在不建議實際執行，只保留作比較。</span></div>
+    </div>
+
+    <div class="wooHelpSection">
+      <div class="wooHelpTitle">目前 5 套策略的操作邏輯</div>
+
+      <div class="wooHelpRule">
+        <strong>SS｜發動續強・真領漲｜多｜10日</strong>
+        <span>條件：族群過去120日至少5次成熟發動，發動後5日勝率≥60%且平均報酬&gt;0；個股過去發動時拿第1名比例≥40%；今天再次發動且個股排前2。</span>
+        <span>操作：今天收盤確認 → 下一交易日開盤買進該前2名中符合DNA者 → 固定持有10個交易日。</span>
+      </div>
+
+      <div class="wooHelpRule">
+        <strong>SS｜新轉強・當日落後補漲｜多｜5日</strong>
+        <span>條件：族群今天第一次進入「新轉強」。</span>
+        <span>操作：找今天族群內漲幅最弱的那一檔 → 下一交易日開盤買進 → 固定持有5個交易日。</span>
+      </div>
+
+      <div class="wooHelpRule">
+        <strong>A｜中期弱短期強・落後補漲｜多｜10日</strong>
+        <span>條件：族群20日排名仍在後段（#12以後），但5日排名突然衝進前5。</span>
+        <span>操作：選族群內20日表現最弱股 → 下一交易日開盤買進 → 固定持有10個交易日。</span>
+      </div>
+
+      <div class="wooHelpRule">
+        <strong>A｜高檔整理・長期強股｜多｜20日</strong>
+        <span>條件：族群今天進入「高檔整理」。</span>
+        <span>操作：選族群內60日最強股 → 下一交易日開盤買進 → 固定持有20個交易日。</span>
+      </div>
+
+      <div class="wooHelpRule">
+        <strong>A｜修復中・弱股隔日短空｜空｜1日</strong>
+        <span>條件：族群今天進入「修復中」。</span>
+        <span>操作：選族群內20日最弱股 → 下一交易日開盤放空 → 持有1個交易日後出場。</span>
+      </div>
+    </div>
+
+    <div class="wooHelpSection">
+      <div class="wooHelpTitle">目前還沒加入的東西</div>
+      這5套目前的統計是固定進場、固定持有；<b>尚未把統一停損、停利、手續費、交易稅、滑價正式整合進策略規則</b>。所以跑馬燈是「策略成立提醒」，不是看到就無條件追價。
+    </div>
   </div>
 
   <div class="k">
