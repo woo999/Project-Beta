@@ -207,9 +207,9 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
           <b>長短結構判讀</b><br>
           長期位置＝1年×20%＋120日×30%＋60日×50%的加權名次，越近期權重越高。加權≤5.5且60日≤6＝長期強勢；加權≥11.5且60日≥11＝長期弱勢；其餘＝長期中性。<br>
           長期趨勢＝比較1年與60日：60日比1年至少前進4名＝長線轉強；退後4名＝長線轉弱；其餘＝長線穩定。<br>
-          短期位置＝20日×20%＋10日×30%＋5日×50%的加權名次。≤5.5＝短期強勢區；≥11.5＝短期弱勢區；其餘＝短期中位。<br>
-          短期速度＝20日→10日→5日。淨前進≥6且兩段都前進＝短期急升；淨前進≥3＝短期升溫；淨退後≥6且兩段都退＝短期急退；淨退後≥3＝短期退潮。兩段方向相反且波動明顯＝短期震盪；其餘＝短期整理。<br>
-          最後把長期位置、長期趨勢、短期位置、短期速度一起合成「主流續強／主流高檔／強勢退潮／短線強勢／弱勢反彈／弱勢續弱…」。這是市場結構描述，不是進出場指令。
+          短期排名＝20日×20%＋10日×30%＋5日×50%的加權名次。≤5.5＝短期排名強；≥11.5＝短期排名偏弱；其餘＝短期排名中。<br>
+          排名變化＝20日→10日→5日。淨前進≥6且兩段都前進＝排名急升；淨前進≥3＝排名升溫；淨退後≥6且兩段都退＝排名急退；淨退後≥3＝排名退潮。兩段方向相反且波動明顯＝排名震盪；其餘＝排名整理。<br>
+          最後把長期位置、長期趨勢、短期排名、排名變化一起合成最終「綜合狀態」，例如主流續強／主流高檔／強勢退潮／短線強勢／短線弱勢／弱勢反彈／弱勢續弱。這是市場結構描述，不是進出場指令。
         </div>
         <div id="rankTrend" class="rankCompact"><div class="empty">載入中…</div></div>
       </div>
@@ -502,11 +502,11 @@ function sectorState(name){
   else if(longDelta<=-4) longTrend='長線轉弱';
 
   const shortWeighted=ranks[20]*0.20+ranks[10]*0.30+ranks[5]*0.50;
-  let shortLevel='短期中位', shortLevelClass='stateNeutral';
+  let shortLevel='短期排名中', shortLevelClass='stateNeutral';
   if(shortWeighted<=5.5){
-    shortLevel='短期強勢'; shortLevelClass='stateStrong';
+    shortLevel='短期排名強'; shortLevelClass='stateStrong';
   }else if(shortWeighted>=11.5){
-    shortLevel='短期弱勢'; shortLevelClass='stateWeak';
+    shortLevel='短期排名偏弱'; shortLevelClass='stateWeak';
   }
 
   const d1=ranks[20]-ranks[10];
@@ -517,23 +517,23 @@ function sectorState(name){
   const opposite=(d1>0&&d2<0)||(d1<0&&d2>0);
   const volatile=opposite && Math.abs(d1)>=3 && Math.abs(d2)>=3;
 
-  let shortLabel='短期整理', shortClass='stateFlat';
+  let shortLabel='排名整理', shortClass='stateFlat';
   if(shortNet>=6 && improveSteps===2){
-    shortLabel='短期急升'; shortClass='stateWarm';
+    shortLabel='排名急升'; shortClass='stateWarm';
   }else if(shortNet>=3 && improveSteps>=1){
-    shortLabel='短期升溫'; shortClass='stateWarm';
+    shortLabel='排名升溫'; shortClass='stateWarm';
   }else if(shortNet<=-6 && weakenSteps===2){
-    shortLabel='短期急退'; shortClass='stateCool';
+    shortLabel='排名急退'; shortClass='stateCool';
   }else if(shortNet<=-3 && weakenSteps>=1){
-    shortLabel='短期退潮'; shortClass='stateCool';
+    shortLabel='排名退潮'; shortClass='stateCool';
   }else if(volatile){
-    shortLabel='短期震盪'; shortClass='stateNeutral';
+    shortLabel='排名震盪'; shortClass='stateNeutral';
   }
 
-  const shortUp=shortLabel==='短期急升'||shortLabel==='短期升溫';
-  const shortDown=shortLabel==='短期急退'||shortLabel==='短期退潮';
-  const shortStrong=shortLevel==='短期強勢';
-  const shortWeak=shortLevel==='短期弱勢';
+  const shortUp=shortLabel==='排名急升'||shortLabel==='排名升溫';
+  const shortDown=shortLabel==='排名急退'||shortLabel==='排名退潮';
+  const shortStrong=shortLevel==='短期排名強';
+  const shortWeak=shortLevel==='短期排名偏弱';
   let phase='中性整理', phaseClass='phaseNeutral';
 
   if(longLabel==='長期強勢'){
