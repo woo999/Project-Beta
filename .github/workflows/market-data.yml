@@ -10,6 +10,7 @@ on:
       - "scripts/update_market_data.py"
       - "scripts/update_monthly_trade_snapshots.py"
       - "scripts/backtest_monthly_v1.py"
+      - "scripts/update_strategy_alerts.py"
       - ".github/workflows/market-data.yml"
       - "docs/data/groups.json"
       - "docs/data/monthly_trades.json"
@@ -40,11 +41,13 @@ jobs:
         run: python scripts/update_monthly_trade_snapshots.py
       - name: Run one-month walk-forward backtest
         run: python scripts/backtest_monthly_v1.py
+      - name: Update WOO ALERT strategy signals
+        run: python scripts/update_strategy_alerts.py
       - name: Commit refreshed data
         run: |
           git config user.name "woo-flow-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/data/history docs/data/latest.json docs/data/summary.json docs/data/daily_rankings.json docs/data/leader_memory.json docs/data/market_status.json docs/data/monthly_trades.json docs/data/backtest_monthly_v1.json
+          git add docs/data/history docs/data/latest.json docs/data/summary.json docs/data/daily_rankings.json docs/data/leader_memory.json docs/data/market_status.json docs/data/monthly_trades.json docs/data/backtest_monthly_v1.json docs/data/strategy_alerts.json
           if git diff --cached --quiet; then
             echo "No market data changes."
           else
