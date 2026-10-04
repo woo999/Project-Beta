@@ -288,8 +288,8 @@ def main():
         if now.get("label")=="修復中" and old.get("label")!="修復中":
             stock=strongest_member(g,hist,idx,latest,20,reverse=False)
             if stock:
-                add(alerts,"A","修復中・弱股隔日短空","SHORT",g["name"],stock,1,
-                    "族群今日進入修復中｜選20日最弱股")
+                add(alerts,"A","修復中・弱股隔日當沖空","SHORT",g["name"],stock,1,
+                    "族群今日進入修復中｜選20日最弱股｜下一交易日開盤放空、同日收盤回補（當沖）")
 
     # de-duplicate same strategy/stock
     uniq={}
