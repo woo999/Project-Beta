@@ -732,6 +732,7 @@ function renderLeaderDNA(){
 
   const rows=[...(mg.stocks||[])].sort((a,b)=>
     (b.leader_position_score??-1)-(a.leader_position_score??-1) ||
+    (b.leader_rate??b.top3_rate??-1)-(a.leader_rate??a.top3_rate??-1) ||
     (b.top1_rate??-1)-(a.top1_rate??-1) ||
     (b.top3_rate??-1)-(a.top3_rate??-1)
   );
@@ -739,7 +740,8 @@ function renderLeaderDNA(){
   const sampleWarning=mg.activation_days<3
     ? '<div class="empty warn" style="margin-bottom:8px">樣本太少：這個期間只有 '+mg.activation_days+' 個發動日，先看數字，不要下定論。</div>'
     : '';
-  box.innerHTML=sampleWarning+rows.map((x,i)=>{
+  const dnaRuleNote='<div class="empty" style="margin-bottom:8px">領漲群＝嚴格前3名，外加「當日漲幅至少5%，且與第3名差距不超過0.30個百分點」的近乎並列強勢股。第一名仍只算真正第1名。</div>';
+  box.innerHTML=sampleWarning+dnaRuleNote+rows.map((x,i)=>{
     const f1=x.follow_through?.['1'];
     const f3=x.follow_through?.['3'];
     const f5=x.follow_through?.['5'];
@@ -747,12 +749,13 @@ function renderLeaderDNA(){
       <div class="dnaStock">
         <div class="dnaHead">
           <div><span class="dnaName">#${i+1} ${x.name}</span><span class="dnaCode">${x.code}</span></div>
-          <span class="mut">前三 ${x.top3_count}/${mg.activation_days}</span>
+          <span class="mut">領漲群 ${x.leader_count??x.top3_count}/${mg.activation_days} · 嚴格前三 ${x.top3_count}/${mg.activation_days}</span>
         </div>
         <div class="dnaGrid">
           <div class="dnaMetric"><span>領漲位置</span><b class="y">${fmtRate(x.leader_position_score)}</b><small>平均名次 ${Number.isFinite(x.avg_rank_when_activation)?x.avg_rank_when_activation.toFixed(2):'—'} · n=${x.position_samples||0}</small></div>
+          <div class="dnaMetric"><span>領漲群率</span><b>${fmtRate(x.leader_rate??x.top3_rate)}</b><small>Top3＋近乎並列強勢股</small></div>
           <div class="dnaMetric"><span>第一率</span><b>${fmtRate(x.top1_rate)}</b><small>${x.top1_count} 次</small></div>
-          <div class="dnaMetric"><span>發動漲幅</span><b class="${cls(x.avg_pct_when_leader)}">${fmtPct(x.avg_pct_when_leader)}</b><small>進前三當日平均</small></div>
+          <div class="dnaMetric"><span>發動漲幅</span><b class="${cls(x.avg_pct_when_leader)}">${fmtPct(x.avg_pct_when_leader)}</b><small>進領漲群當日平均</small></div>
           <div class="dnaMetric"><span>後1日</span><b class="${cls(f1?.avg_return)}">${fmtPct(f1?.avg_return)}</b><small>勝率 ${Number.isFinite(f1?.win_rate)?f1.win_rate.toFixed(0)+'%':'—'} · n=${f1?.samples||0}</small></div>
           <div class="dnaMetric"><span>後3日</span><b class="${cls(f3?.avg_return)}">${fmtPct(f3?.avg_return)}</b><small>勝率 ${Number.isFinite(f3?.win_rate)?f3.win_rate.toFixed(0)+'%':'—'} · n=${f3?.samples||0}</small></div>
           <div class="dnaMetric"><span>後5日</span><b class="${cls(f5?.avg_return)}">${fmtPct(f5?.avg_return)}</b><small>勝率 ${Number.isFinite(f5?.win_rate)?f5.win_rate.toFixed(0)+'%':'—'} · n=${f5?.samples||0}</small></div>
