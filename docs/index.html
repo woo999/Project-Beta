@@ -52,7 +52,13 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
 .wooMarquee{overflow:hidden;white-space:nowrap;min-width:0}
 .wooMarqueeTrack{display:inline-block;padding-left:100%;animation:wooTicker 32s linear infinite;font-size:11px;font-weight:750;color:#dce8ed}
 .wooMarqueeTrack span{margin-right:36px}
-.wooAlertDate{padding-right:10px;color:#718791;font-size:9px;white-space:nowrap}
+.wooAlertDate{color:#718791;font-size:9px;white-space:nowrap}
+.wooAlertRight{display:flex;align-items:center;gap:6px;padding-right:8px}
+.wooAlertHelpBtn{border:1px solid #28515f;border-radius:999px;padding:4px 7px;font-size:9px;color:#9eb0b8;background:transparent;cursor:pointer;white-space:nowrap}
+.wooAlertHelpBtn:hover{border-color:#44d5ff;color:#eef7fa}
+.wooAlertHelp{display:none;margin:-2px 0 10px;padding:11px 12px;border:1px solid #1c343e;background:#0b171c;border-radius:10px;color:#8fa4ad;font-size:10px;line-height:1.65}
+.wooAlertHelp b{color:#dce8ed}
+.wooAlertHelp.show{display:block}
 @keyframes wooTicker{from{transform:translateX(0)}to{transform:translateX(-100%)}}
 @media(prefers-reduced-motion:reduce){.wooMarqueeTrack{animation:none;padding-left:0}}
 
@@ -82,7 +88,19 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
   <div class="wooAlert" id="wooAlert">
     <div class="wooAlertBadge">WOO ALERT</div>
     <div class="wooMarquee"><div class="wooMarqueeTrack" id="wooAlertTrack"><span>策略掃描中…</span></div></div>
-    <div class="wooAlertDate" id="wooAlertDate">—</div>
+    <div class="wooAlertRight">
+      <button class="wooAlertHelpBtn" type="button" id="wooAlertHelpBtn">怎麼看？</button>
+      <div class="wooAlertDate" id="wooAlertDate">—</div>
+    </div>
+  </div>
+  <div class="wooAlertHelp" id="wooAlertHelp">
+    <b>WOO ALERT 怎麼看</b><br>
+    格式：等級｜策略｜族群｜股票｜多/空｜持有天數｜狀態。<br>
+    <b>SSS</b>＝最高級，必須經過真正未參與開發的新資料驗證；目前先保留空白。<br>
+    <b>SS</b>＝目前統計最穩、可優先檢查；<b>A</b>＝可用但次一級；B／C只保留研究，不主動列入主要提醒。<br>
+    「明日開盤觀察」代表今天收盤後條件成立，下一交易日才進入觀察，不代表一定買進。<br>
+    持有天數是該策略目前回測使用的固定週期；實際交易仍要看隔日價格、跳空與風險。<br>
+    跑馬燈只顯示最新收盤資料日期的策略訊號，不把舊訊號當成今天的新訊號。
   </div>
 
   <div class="k">
@@ -958,6 +976,11 @@ document.querySelectorAll('#rangeTabs .tab').forEach(btn=>{
   btn.addEventListener('click',()=>setRange(Number(btn.dataset.range)));
 });
 document.getElementById('clearSelectionBtn')?.addEventListener('click',clearSelection);
+document.getElementById('wooAlertHelpBtn')?.addEventListener('click',()=>{
+  const help=document.getElementById('wooAlertHelp');
+  if(!help) return;
+  help.classList.toggle('show');
+});
 document.getElementById('rankHelpBtn')?.addEventListener('click',()=>{
   const help=document.getElementById('rankHelp');
   if(!help) return;
