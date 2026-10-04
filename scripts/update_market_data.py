@@ -192,10 +192,12 @@ def build_leader_memory(groups, daily_rankings, histories):
         "updated_at": datetime.now(timezone.utc).isoformat(),
         "definition": {
             "activation_day": "group rank <= 3 AND group average daily return >= 2% AND up ratio >= 60%",
-            "leader_hit": "stock appears in that group's top 3 daily returns on an activation day",
+            "leader_hit": "stock is strict top 3, OR is >=5% on the activation day and within 0.30 percentage points of the strict #3 return; this avoids treating near-tied strong stocks as non-leaders",
+            "top3_hit": "stock appears in that group's strict top 3 daily returns on an activation day",
+            "near_leader_hit": "stock is outside strict top 3 but >=5% and within 0.30 percentage points of the strict #3 return",
             "top1_hit": "stock ranks #1 by daily return inside the group on an activation day",
             "note": "close-to-close daily data only; this does not measure intraday first mover timing",
-            "follow_through": "after a stock is top 3 on an activation day, measure close-to-close return 1/3/5 market trading days later; missing future prices are excluded",
+            "follow_through": "after a stock is in the expanded leader cohort on an activation day, measure close-to-close return 1/3/5 market trading days later; missing future prices are excluded",
             "group_follow_through": "for each activation event, average constituent close-to-close returns from activation-day close to 1/3/5 market trading days later; then average those event returns and report positive-event win rate",
             "leader_position_score": "on each activation day rank all priced members by daily pct; first place scores 100 and last place scores 0, linearly scaled in between; report the stock's average score across activation days",
         },
@@ -230,6 +232,8 @@ def build_leader_memory(groups, daily_rankings, histories):
                 code: {
                     "code": code,
                     "name": name,
+                    "leader_count": 0,
+                    "near_leader_count": 0,
                     "top3_count": 0,
                     "top1_count": 0,
                     "leader_pct_sum": 0.0,
@@ -259,7 +263,8 @@ def build_leader_memory(groups, daily_rankings, histories):
                 if not is_activation:
                     continue
 
-                leaders = gr.get("leaders", [])[:3]
+                strict_leaders = gr.get("leaders", [])[:3]
+                third_pct = strict_leaders[2].get("pct") if len(strict_leaders) >= 3 else None
                 event_date = day.get("date")
                 event_pos = day_index.get(event_date)
                 event_group_follow = {}
@@ -271,6 +276,26 @@ def build_leader_memory(groups, daily_rankings, histories):
                         ranked_members.append((code, name, pct))
                 ranked_members.sort(key=lambda x: x[2], reverse=True)
                 ranked_count = len(ranked_members)
+
+                strict_codes = {x.get("code") for x in strict_leaders}
+                leader_cohort = []
+                for rank_pos, (code, name, pct) in enumerate(ranked_members, 1):
+                    is_strict_top3 = code in strict_codes
+                    is_near_leader = (
+                        not is_strict_top3
+                        and isinstance(third_pct, (int, float))
+                        and pct >= 5.0
+                        and pct >= third_pct - 0.30
+                    )
+                    if is_strict_top3 or is_near_leader:
+                        leader_cohort.append({
+                            "code": code,
+                            "name": name,
+                            "pct": round(pct, 4),
+                            "rank": rank_pos,
+                            "leader_type": "TOP3" if is_strict_top3 else "NEAR_TOP3",
+                        })
+
                 for rank_pos, (code, _name, _pct) in enumerate(ranked_members, 1):
                     if code not in counts:
                         continue
@@ -310,16 +335,21 @@ def build_leader_memory(groups, daily_rankings, histories):
                     "avg_pct": gr.get("avg_pct"),
                     "up_count": gr.get("up_count"),
                     "priced_members": priced,
-                    "leaders": leaders,
+                    "leaders": strict_leaders,
+                    "leader_cohort": leader_cohort,
                     "group_follow_through": event_group_follow,
                 })
 
-                for i, leader in enumerate(leaders):
+                for leader in leader_cohort:
                     code = leader.get("code")
                     if code not in counts:
                         continue
-                    counts[code]["top3_count"] += 1
-                    if i == 0:
+                    counts[code]["leader_count"] += 1
+                    if leader.get("leader_type") == "TOP3":
+                        counts[code]["top3_count"] += 1
+                    else:
+                        counts[code]["near_leader_count"] += 1
+                    if leader.get("rank") == 1:
                         counts[code]["top1_count"] += 1
                     pct = leader.get("pct")
                     if isinstance(pct, (int, float)):
@@ -350,6 +380,8 @@ def build_leader_memory(groups, daily_rankings, histories):
                 position_obs = item.pop("position_obs")
                 follow_returns = item.pop("follow_returns")
                 item["activation_days"] = activation_days
+                item["leader_rate"] = round(item["leader_count"] / activation_days * 100, 2) if activation_days else 0
+                item["near_leader_rate"] = round(item["near_leader_count"] / activation_days * 100, 2) if activation_days else 0
                 item["top3_rate"] = round(item["top3_count"] / activation_days * 100, 2) if activation_days else 0
                 item["top1_rate"] = round(item["top1_count"] / activation_days * 100, 2) if activation_days else 0
                 item["avg_pct_when_leader"] = round(pct_sum / obs, 4) if obs else None
@@ -369,6 +401,7 @@ def build_leader_memory(groups, daily_rankings, histories):
 
             stocks.sort(key=lambda x: (
                 x["leader_position_score"] if x["leader_position_score"] is not None else -999999,
+                x["leader_rate"],
                 x["top1_count"],
                 x["top3_count"],
                 x["avg_pct_when_leader"] if x["avg_pct_when_leader"] is not None else -999999
