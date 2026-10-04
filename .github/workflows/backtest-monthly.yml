@@ -9,6 +9,7 @@ on:
       - "scripts/backtest_entry_sweep_v1.py"
       - "scripts/backtest_signal_sweep_v1.py"
       - "scripts/backtest_activation_followthrough_strategy_v1.py"
+      - "scripts/backtest_activation_dna_position_combo_v1.py"
       - ".github/workflows/backtest-monthly.yml"
       - "docs/data/groups.json"
       - "docs/data/history/**"
@@ -39,11 +40,13 @@ jobs:
         run: python scripts/backtest_signal_sweep_v1.py
       - name: Backtest activation follow-through strategy
         run: python scripts/backtest_activation_followthrough_strategy_v1.py
+      - name: Test activation DNA position combinations
+        run: python scripts/backtest_activation_dna_position_combo_v1.py
       - name: Commit backtest result
         run: |
           git config user.name "woo-flow-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/data/backtest_monthly_v1.json docs/data/entry_sweep_v1.json docs/data/signal_sweep_v1.json docs/data/activation_followthrough_strategy_v1.json
+          git add docs/data/backtest_monthly_v1.json docs/data/entry_sweep_v1.json docs/data/signal_sweep_v1.json docs/data/activation_followthrough_strategy_v1.json docs/data/activation_dna_position_combo_v1.json
           if git diff --cached --quiet; then
             echo "No backtest changes."
           else
