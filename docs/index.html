@@ -146,9 +146,9 @@ body{margin:0;background:#071014;color:#eef7fa;font-family:-apple-system,BlinkMa
       </div>
 
       <div class="wooHelpRule">
-        <strong>A｜修復中・弱股隔日短空｜空｜1日</strong>
+        <strong>A｜修復中・弱股隔日當沖空｜空｜當沖</strong>
         <span>條件：族群今天進入「修復中」。</span>
-        <span>操作：選族群內20日最弱股 → 下一交易日開盤放空 → 持有1個交易日後出場。</span>
+        <span>操作：選族群內20日最弱股 → 下一交易日開盤放空 → <b>同一交易日收盤回補（當沖）</b>。不是留倉到隔天。</span>
       </div>
     </div>
 
@@ -994,7 +994,8 @@ function renderStrategyAlerts(){
   }
   const items=rows.map(x=>{
     const side=x.side==='SHORT'?'空':'多';
-    return x.grade+'｜'+x.strategy+'｜'+x.group+'｜'+x.code+' '+x.name+'｜'+side+'｜'+x.holding_days+'日｜'+x.status;
+    const hold=(x.strategy||'').includes('當沖')?'當沖':x.holding_days+'日';
+    return x.grade+'｜'+x.strategy+'｜'+x.group+'｜'+x.code+' '+x.name+'｜'+side+'｜'+hold+'｜'+x.status;
   });
   const html=items.map(x=>'<span>'+x+'</span>').join('');
   track.innerHTML=html+html;
