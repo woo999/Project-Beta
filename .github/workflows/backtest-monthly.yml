@@ -7,6 +7,7 @@ on:
     paths:
       - "scripts/backtest_monthly_v1.py"
       - "scripts/backtest_entry_sweep_v1.py"
+      - "scripts/backtest_signal_sweep_v1.py"
       - ".github/workflows/backtest-monthly.yml"
       - "docs/data/groups.json"
       - "docs/data/history/**"
@@ -33,11 +34,13 @@ jobs:
         run: python scripts/backtest_monthly_v1.py
       - name: Sweep entry methods
         run: python scripts/backtest_entry_sweep_v1.py
+      - name: Sweep signals and holding periods
+        run: python scripts/backtest_signal_sweep_v1.py
       - name: Commit backtest result
         run: |
           git config user.name "woo-flow-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/data/backtest_monthly_v1.json docs/data/entry_sweep_v1.json
+          git add docs/data/backtest_monthly_v1.json docs/data/entry_sweep_v1.json docs/data/signal_sweep_v1.json
           if git diff --cached --quiet; then
             echo "No backtest changes."
           else
