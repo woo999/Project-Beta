@@ -1,14 +1,20 @@
 {
   "schema_version": 1,
-  "updated_at": null,
+  "updated_at": "2026-10-05T01:22:00+00:00",
   "strategy": {
     "id": "M1_STRUCTURE",
     "name": "1個月結構實驗",
-    "target_holding_days": [15, 20],
+    "target_holding_days": [
+      15,
+      20
+    ],
     "max_holding_days": 20,
     "hard_stop_pct": -7,
     "risk_reset_pct": 10,
-    "partial_take_profit_pct": [15, 18],
+    "partial_take_profit_pct": [
+      15,
+      18
+    ],
     "trailing_from_peak_pct": -8,
     "principle": "進場前規則鎖定；成交與出場只追加事件；市場快照每日收盤自動保存。"
   },
@@ -19,5 +25,49 @@
     "exit": "最後出場結果與原因",
     "review": "規則遵守、MFE、MAE與事後複盤"
   },
-  "trades": []
+  "trades": [
+    {
+      "id": "REAL-20261005-2359-0918",
+      "status": "OPEN",
+      "code": "2359",
+      "name": "所羅門",
+      "group": "機器人",
+      "side": "SHORT",
+      "source": {
+        "type": "WOO_ALERT",
+        "signal_date": "2026-10-02",
+        "grade": "A",
+        "strategy": "修復中・弱股隔日當沖空"
+      },
+      "entry": {
+        "date": "2026-10-05",
+        "time": "09:18",
+        "avg_price": 130.5,
+        "quantity": 1,
+        "unit": "張"
+      },
+      "plan": {
+        "stop_price": 133.5,
+        "exit_style": "當沖",
+        "planned_exit": "盤中依原當沖規則出場，最晚當日結束"
+      },
+      "pre_entry": {
+        "thesis": "WOO ALERT A級修復中弱股空方候選；實際進場由盤中當沖判斷決定",
+        "high_point_pullback_confirmed": null
+      },
+      "executions": [
+        {
+          "date": "2026-10-05",
+          "time": "09:18",
+          "side": "SHORT",
+          "quantity": 1,
+          "unit": "張",
+          "price": 130.5
+        }
+      ],
+      "snapshots": [],
+      "exit": {},
+      "review": {}
+    }
+  ]
 }
