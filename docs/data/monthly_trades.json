@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-05T11:09:32.129Z",
+  "updated_at": "2026-10-05T11:09:52.058Z",
   "strategy": {
     "id": "M1_STRUCTURE",
     "name": "1個月結構實驗",
@@ -163,7 +163,11 @@
         "realized_return_pct": 2.2989,
         "holding_sessions": 1,
         "reason": "實際回補（使用者回報）",
-        "time": "13:24"
+        "time": "13:24",
+        "realized_pnl": 2744,
+        "currency": "TWD",
+        "pnl_source": "USER_REPORTED",
+        "realized_pnl_type": "official"
       },
       "review": {
         "rules_followed": null
