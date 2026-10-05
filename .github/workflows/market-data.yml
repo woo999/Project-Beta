@@ -3,7 +3,7 @@ name: Update WOO Flow market data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "20 10 * * 1-5"
+    - cron: "20 10 * * 1-5"\n    - cron: "0 11 * * 1-5"
   push:
     branches: [main]
     paths:
