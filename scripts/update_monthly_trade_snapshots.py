@@ -116,7 +116,10 @@ def main():
         close = latest_stock.get("latest_close")
         unrealized = None
         if isinstance(entry_price, (int, float)) and entry_price > 0 and isinstance(close, (int, float)):
-            unrealized = round((close / entry_price - 1) * 100, 4)
+            if trade.get("side") == "SHORT":
+                unrealized = round((entry_price - close) / entry_price * 100, 4)
+            else:
+                unrealized = round((close / entry_price - 1) * 100, 4)
 
         snaps.append({
             "date": latest_date,
