@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-05T11:05:19.505Z",
+  "updated_at": "2026-10-05T11:09:32.129Z",
   "strategy": {
     "id": "M1_STRUCTURE",
     "name": "1個月結構實驗",
@@ -69,7 +69,8 @@
           "side": "BUY_TO_COVER",
           "quantity": 1,
           "unit": "張",
-          "price": 127.5
+          "price": 127.5,
+          "time": "13:24"
         }
       ],
       "snapshots": [
@@ -161,7 +162,8 @@
         "unit": "張",
         "realized_return_pct": 2.2989,
         "holding_sessions": 1,
-        "reason": "實際回補（使用者回報）"
+        "reason": "實際回補（使用者回報）",
+        "time": "13:24"
       },
       "review": {
         "rules_followed": null
