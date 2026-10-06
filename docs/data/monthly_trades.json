@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-05T11:09:52.058Z",
+  "updated_at": "2026-10-06T03:43:00Z",
   "strategy": {
     "id": "M1_STRUCTURE",
     "name": "1個月結構實驗",
@@ -169,6 +169,51 @@
         "pnl_source": "USER_REPORTED",
         "realized_pnl_type": "official"
       },
+      "review": {
+        "rules_followed": null
+      }
+    },
+    {
+      "id": "REAL-20261006-3441-0902",
+      "status": "OPEN",
+      "code": "3441",
+      "name": "聯一光",
+      "group": "光學",
+      "side": "LONG",
+      "source": {
+        "type": "WOO_ALERT",
+        "signal_date": "2026-10-05",
+        "grade": "SS",
+        "strategy": "發動續強・真領漲"
+      },
+      "entry": {
+        "date": "2026-10-06",
+        "time": "09:02",
+        "avg_price": 243.5,
+        "quantity": null,
+        "unit": "張"
+      },
+      "plan": {
+        "target_holding_days": 10,
+        "planned_exit": "SS基準為持有10個交易日；實際交易依使用者後續回報記錄",
+        "stop_price": null
+      },
+      "pre_entry": {
+        "thesis": "WOO ALERT SS發動續強・真領漲；使用者實際於盤中進場",
+        "execution_note": "09:02 進場，成交價243.5"
+      },
+      "executions": [
+        {
+          "date": "2026-10-06",
+          "time": "09:02",
+          "side": "BUY",
+          "quantity": null,
+          "unit": "張",
+          "price": 243.5
+        }
+      ],
+      "snapshots": [],
+      "exit": {},
       "review": {
         "rules_followed": null
       }
