@@ -47,6 +47,7 @@ table{width:100%;border-collapse:collapse;margin-top:9px;font-size:10px}th,td{te
 
   <div class="c">
     <div class="title"><b>自動策略訊號紀錄</b><span class="mut">系統訊號 ≠ 你的真實成交</span></div>
+    <div class="note">同一天同一檔股票可能同時符合兩套以上策略。這不是重複下單；WOO LAB 會分開保留，因為每套策略的持有期與驗算結果不同。實際操作只看最高等級作主訊號，其餘標示為「共振」。</div>
     <div class="scroller">
       <table>
         <thead><tr><th>訊號日</th><th>級別</th><th>策略</th><th>族群</th><th>股票</th><th>方向</th><th>週期</th><th>進場</th><th>出場</th><th>報酬</th><th>結果</th><th>MFE</th><th>MAE</th><th>狀態</th></tr></thead>
@@ -115,12 +116,24 @@ function renderSignals(lab){
     box.innerHTML='<tr><td colspan="14" class="mut">目前沒有正式 Forward 訊號。</td></tr>';
     return;
   }
+  const gradeScore={SSS:3,SS:2,A:1,B:0,C:-1};
+  const sameKey=x=>[x.signal_date,x.code,x.side].join('|');
+  const groups={};
+  rows.forEach(x=>(groups[sameKey(x)]??=[]).push(x));
   box.innerHTML=rows.map(x=>{
+    const peers=groups[sameKey(x)]||[];
+    const maxGrade=Math.max(...peers.map(p=>gradeScore[p.grade]??-9));
+    const isPrimary=(gradeScore[x.grade]??-9)===maxGrade;
+    const resonance=peers.length>1
+      ? (isPrimary
+          ? '<span class="tag ss" style="margin-left:5px">主訊號・'+peers.length+'策略共振</span>'
+          : '<span class="tag aGrade" style="margin-left:5px">共振</span>')
+      : '';
     const hold=(x.strategy||'').includes('當沖')?'當沖':(x.holding_days||'—')+'日';
     return '<tr>'+
       '<td>'+x.signal_date+'</td>'+
       '<td><span class="tag '+(x.grade==='SS'?'ss':'aGrade')+'">'+x.grade+'</span></td>'+
-      '<td>'+x.strategy+'</td>'+
+      '<td>'+x.strategy+resonance+'</td>'+
       '<td>'+x.group+'</td>'+
       '<td>'+x.code+' '+x.name+'</td>'+
       '<td>'+(x.side==='SHORT'?'空':'多')+'</td>'+
