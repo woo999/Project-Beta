@@ -2,13 +2,6 @@ name: Update WOO Flow market data
 
 on:
   workflow_dispatch:
-  schedule:
-    # Taiwan time 18:20 primary run, then automatic fallbacks at 18:35 / 18:50 / 19:05.
-    # GitHub scheduled workflows may be delayed, so multiple slots reduce the chance of a missed refresh.
-    - cron: "20 10 * * 1-5"
-    - cron: "35 10 * * 1-5"
-    - cron: "50 10 * * 1-5"
-    - cron: "5 11 * * 1-5"
   push:
     branches: [main]
     paths:
