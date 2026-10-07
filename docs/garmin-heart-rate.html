@@ -1,141 +1,129 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#0b0b0d" />
-  <title>Garmin 即時心率</title>
-  <style>
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;background:#0b0b0d;color:#fff;
-      font-family:Segoe UI,system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
-      display:grid;place-items:center;overflow:hidden;
-    }
-    .card{
-      width:min(92vw,460px);padding:28px 24px 24px;border-radius:24px;
-      background:#151519;border:1px solid #2a2a31;
-      box-shadow:0 20px 70px rgba(0,0,0,.45);text-align:center;
-    }
-    .title{font-size:14px;color:#9c9ca7;letter-spacing:.08em;margin-bottom:18px}
-    .readout{display:flex;align-items:center;justify-content:center;gap:16px;margin:8px 0 4px}
-    .heart{font-size:58px;line-height:1;color:#ff4d5f;transform-origin:center}
-    .heart.beat{animation:beat .55s ease}
-    @keyframes beat{0%{transform:scale(1)}35%{transform:scale(1.28)}100%{transform:scale(1)}}
-    .bpm{font-size:86px;line-height:.95;font-weight:800;letter-spacing:-.05em}
-    .unit{font-size:16px;color:#b5b5bf;margin-left:4px}
-    .status{min-height:24px;margin:18px 0;color:#aaaab5;font-size:14px}
-    .status.ok{color:#67d391}.status.err{color:#ff6b78}
-    button{
-      appearance:none;border:0;border-radius:14px;padding:13px 18px;
-      font-size:16px;font-weight:700;cursor:pointer;
-    }
-    #connect{background:#fff;color:#111;min-width:190px}
-    #disconnect{background:#2a2a31;color:#ddd;margin-left:8px}
-    .hint{font-size:12px;line-height:1.55;color:#73737f;margin-top:16px}
-    .device{font-size:13px;color:#7f7f8b;margin-top:8px}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Garmin 即時心率</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:#0b0b0d;color:#fff;
+  font-family:Segoe UI,system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
+  display:grid;place-items:center;overflow:hidden
+}
+.wrap{transform:scale(var(--scale,.82));transform-origin:center;transition:.15s}
+.card{
+  width:280px;padding:12px 14px 14px;border-radius:16px;
+  background:#151519;border:1px solid #2a2a31;text-align:center;
+  box-shadow:0 12px 36px rgba(0,0,0,.45)
+}
+.toolbar{display:flex;justify-content:flex-end;gap:5px;margin-bottom:2px}
+.mini{
+  width:28px;height:26px;padding:0;border:0;border-radius:8px;
+  background:#29292f;color:#ddd;font-size:17px;font-weight:700;cursor:pointer
+}
+.title{font-size:10px;color:#8e8e99;letter-spacing:.1em;margin-bottom:8px}
+.readout{display:flex;align-items:center;justify-content:center;gap:9px;margin:2px 0}
+.heart{font-size:38px;color:#ff4d5f;line-height:1;transform-origin:center}
+.heart.beat{animation:beat .55s ease}
+@keyframes beat{0%{transform:scale(1)}35%{transform:scale(1.25)}100%{transform:scale(1)}}
+.bpm{font-size:60px;line-height:.95;font-weight:800;letter-spacing:-.04em}
+.unit{font-size:12px;color:#aaa;margin-left:3px}
+.status{min-height:18px;margin:10px 0 8px;color:#aaa;font-size:11px}
+.status.ok{color:#67d391}.status.err{color:#ff6b78}
+.action{
+  border:0;border-radius:10px;padding:9px 13px;
+  font-size:13px;font-weight:700;cursor:pointer
+}
+#connect{background:#fff;color:#111}
+#disconnect{background:#2a2a31;color:#ddd;margin-left:6px}
+.device{font-size:10px;color:#777;margin-top:6px}
+.hint{font-size:9px;color:#666;margin-top:8px;line-height:1.35}
+</style>
 </head>
 <body>
-  <main class="card">
-    <div class="title">GARMIN LIVE HEART RATE</div>
-    <div class="readout">
-      <div id="heart" class="heart">♥</div>
-      <div><span id="bpm" class="bpm">--</span><span class="unit">BPM</span></div>
-    </div>
-    <div id="status" class="status">按「連線 Garmin」開始</div>
-    <div>
-      <button id="connect">連線 Garmin</button>
-      <button id="disconnect" hidden>中斷</button>
-    </div>
-    <div id="device" class="device"></div>
-    <div class="hint">Forerunner 965 請保持「廣播心率 / Broadcast Heart Rate」開啟。建議使用 Chrome 或 Edge。</div>
-  </main>
-
+<div class="wrap" id="wrap">
+<main class="card">
+  <div class="toolbar">
+    <button class="mini" id="smaller" title="縮小">−</button>
+    <button class="mini" id="bigger" title="放大">+</button>
+  </div>
+  <div class="title">GARMIN LIVE HEART RATE</div>
+  <div class="readout">
+    <div id="heart" class="heart">♥</div>
+    <div><span id="bpm" class="bpm">--</span><span class="unit">BPM</span></div>
+  </div>
+  <div id="status" class="status">按「連線 Garmin」開始</div>
+  <div>
+    <button id="connect" class="action">連線 Garmin</button>
+    <button id="disconnect" class="action" hidden>中斷</button>
+  </div>
+  <div id="device" class="device"></div>
+  <div class="hint">Forerunner 965 保持「廣播心率」開啟</div>
+</main>
+</div>
 <script>
-const bpmEl = document.getElementById('bpm');
-const heartEl = document.getElementById('heart');
-const statusEl = document.getElementById('status');
-const deviceEl = document.getElementById('device');
-const connectBtn = document.getElementById('connect');
-const disconnectBtn = document.getElementById('disconnect');
+const bpmEl=document.getElementById('bpm');
+const heartEl=document.getElementById('heart');
+const statusEl=document.getElementById('status');
+const deviceEl=document.getElementById('device');
+const connectBtn=document.getElementById('connect');
+const disconnectBtn=document.getElementById('disconnect');
+const wrap=document.getElementById('wrap');
+let device=null, characteristic=null;
+let scale=Number(localStorage.getItem('garminWidgetScale')||0.82);
 
-let device = null;
-let characteristic = null;
-
-function setStatus(text, cls=''){
-  statusEl.textContent = text;
-  statusEl.className = 'status ' + cls;
+function applyScale(){
+  scale=Math.max(.5,Math.min(1.25,scale));
+  wrap.style.setProperty('--scale',scale);
+  localStorage.setItem('garminWidgetScale',scale);
 }
+applyScale();
 
-function parseHeartRate(dataView){
-  const flags = dataView.getUint8(0);
-  const is16Bit = flags & 0x01;
-  return is16Bit ? dataView.getUint16(1, true) : dataView.getUint8(1);
+document.getElementById('smaller').onclick=()=>{scale-=.08;applyScale()};
+document.getElementById('bigger').onclick=()=>{scale+=.08;applyScale()};
+
+function setStatus(text,cls=''){statusEl.textContent=text;statusEl.className='status '+cls}
+function parseHeartRate(v){return (v.getUint8(0)&1)?v.getUint16(1,true):v.getUint8(1)}
+function onHeartRateChanged(e){
+  bpmEl.textContent=parseHeartRate(e.target.value);
+  heartEl.classList.remove('beat');void heartEl.offsetWidth;heartEl.classList.add('beat');
+  setStatus('即時心率接收中','ok')
 }
-
-function onHeartRateChanged(event){
-  const bpm = parseHeartRate(event.target.value);
-  bpmEl.textContent = bpm;
-  heartEl.classList.remove('beat');
-  void heartEl.offsetWidth;
-  heartEl.classList.add('beat');
-  setStatus('即時心率接收中', 'ok');
-}
-
 async function connectGarmin(){
   try{
-    if(!navigator.bluetooth){
-      throw new Error('這個瀏覽器不支援 Web Bluetooth，請改用 Chrome 或 Edge');
-    }
-
-    setStatus('請從清單選擇 Garmin / Forerunner…');
-    device = await navigator.bluetooth.requestDevice({
-      filters: [{ services: ['heart_rate'] }],
-      optionalServices: ['heart_rate']
+    if(!navigator.bluetooth) throw new Error('請用 Chrome 或 Edge 開啟');
+    setStatus('請選擇 Garmin / Forerunner…');
+    device=await navigator.bluetooth.requestDevice({
+      filters:[{services:['heart_rate']}],
+      optionalServices:['heart_rate']
     });
-
-    device.addEventListener('gattserverdisconnected', () => {
-      setStatus('已斷線，請重新連線', 'err');
-      bpmEl.textContent = '--';
-      connectBtn.hidden = false;
-      disconnectBtn.hidden = true;
+    device.addEventListener('gattserverdisconnected',()=>{
+      bpmEl.textContent='--';setStatus('已斷線','err');
+      connectBtn.hidden=false;disconnectBtn.hidden=true
     });
-
-    deviceEl.textContent = device.name ? '裝置：' + device.name : 'Garmin 心率裝置';
+    deviceEl.textContent=device.name?'裝置：'+device.name:'Garmin 心率裝置';
     setStatus('正在連線…');
-
-    const server = await device.gatt.connect();
-    const service = await server.getPrimaryService('heart_rate');
-    characteristic = await service.getCharacteristic('heart_rate_measurement');
+    const server=await device.gatt.connect();
+    const service=await server.getPrimaryService('heart_rate');
+    characteristic=await service.getCharacteristic('heart_rate_measurement');
     await characteristic.startNotifications();
-    characteristic.addEventListener('characteristicvaluechanged', onHeartRateChanged);
-
-    connectBtn.hidden = true;
-    disconnectBtn.hidden = false;
-    setStatus('已連線，等待心率資料…', 'ok');
-  }catch(err){
-    console.error(err);
-    setStatus(err?.message || String(err), 'err');
-  }
+    characteristic.addEventListener('characteristicvaluechanged',onHeartRateChanged);
+    connectBtn.hidden=true;disconnectBtn.hidden=false;
+    setStatus('已連線，等待心率…','ok');
+  }catch(err){setStatus(err?.message||String(err),'err')}
 }
-
 function disconnectGarmin(){
   try{
-    if(characteristic){
-      characteristic.removeEventListener('characteristicvaluechanged', onHeartRateChanged);
-    }
-    if(device?.gatt?.connected) device.gatt.disconnect();
+    if(characteristic) characteristic.removeEventListener('characteristicvaluechanged',onHeartRateChanged);
+    if(device?.gatt?.connected) device.gatt.disconnect()
   }catch(e){}
-  bpmEl.textContent = '--';
-  setStatus('已中斷');
-  connectBtn.hidden = false;
-  disconnectBtn.hidden = true;
+  bpmEl.textContent='--';setStatus('已中斷');
+  connectBtn.hidden=false;disconnectBtn.hidden=true
 }
-
-connectBtn.addEventListener('click', connectGarmin);
-disconnectBtn.addEventListener('click', disconnectGarmin);
+connectBtn.onclick=connectGarmin;
+disconnectBtn.onclick=disconnectGarmin;
 </script>
 </body>
 </html>
