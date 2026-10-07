@@ -12,7 +12,13 @@ body{
   font-family:Segoe UI,system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;
   display:grid;place-items:center;overflow:hidden
 }
-.wrap{transform:scale(var(--scale,.82));transform-origin:center;transition:.15s}
+.wrap{
+  --manual-scale:.82;
+  --auto-scale:min(1, calc(92vw / 280), calc(88vh / 220));
+  transform:scale(calc(var(--manual-scale) * var(--auto-scale)));
+  transform-origin:center;
+  transition:transform .12s ease
+}
 .card{
   width:280px;padding:12px 14px 14px;border-radius:16px;
   background:#151519;border:1px solid #2a2a31;text-align:center;
@@ -76,7 +82,7 @@ let scale=Number(localStorage.getItem('garminWidgetScale')||0.82);
 
 function applyScale(){
   scale=Math.max(.5,Math.min(1.25,scale));
-  wrap.style.setProperty('--scale',scale);
+  wrap.style.setProperty('--manual-scale',scale);
   localStorage.setItem('garminWidgetScale',scale);
 }
 applyScale();
