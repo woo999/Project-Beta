@@ -18,6 +18,7 @@ on:
       - "scripts/update_strategy_alerts.py"
       - "scripts/update_strategy_lab.py"
       - ".github/workflows/market-data.yml"
+      - ".github/woo-flow-wake.txt"
       - "docs/data/groups.json"
       - "docs/data/monthly_trades.json"
 
