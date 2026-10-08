@@ -16,7 +16,7 @@ LEADER_MEMORY_PATH = ROOT / "docs" / "data" / "leader_memory.json"
 STATUS_PATH = ROOT / "docs" / "data" / "market_status.json"
 API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
-BACKFILL_DAYS = 400
+BACKFILL_DAYS = 700
 RANGES = (5, 10, 20, 60, 120, 250)
 # Daily rankings archive enabled.
 # Leader memory archive enabled.
@@ -509,12 +509,21 @@ def main():
         by_date = {r["date"]: r for r in old_rows if r.get("date")}
 
         if by_date:
+            first_date = min(by_date)
             last_date = max(by_date)
             start = datetime.strptime(last_date, "%Y-%m-%d").date() + timedelta(days=1)
+            backfill_end = datetime.strptime(first_date, "%Y-%m-%d").date() - timedelta(days=1)
         else:
             start = default_start
+            backfill_end = None
 
         try:
+            if backfill_end is not None and default_start <= backfill_end:
+                fetched_old = fetch_stock(code, default_start.isoformat(), backfill_end.isoformat())
+                for row in compact_rows(fetched_old):
+                    if row.get("date"):
+                        by_date[row["date"]] = row
+
             if start <= today:
                 fetched = fetch_stock(code, start.isoformat(), today.isoformat())
                 for row in compact_rows(fetched):
