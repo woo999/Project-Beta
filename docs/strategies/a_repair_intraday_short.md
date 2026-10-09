@@ -158,3 +158,26 @@ Do not:
 - treat 3/3 forward wins as validation
 - call NT$5m a per-stock size when the user's current model is NT$5m total per signal day
 - mix overnight capital requirements from long strategies into this intraday strategy
+
+## Execution eligibility audit and user decisions — 2026-10-09
+
+Audit: `docs/data/a_repair_intraday_short_eligibility_audit.json`.
+Base raw-backtest commit: `be1643fc010bbe17a20557fb0aac9e72ec9f8f01`.
+Scope: entry-day exchange eligibility for cash sell-first day trading, not margin/borrowed-stock shorting.
+
+- 113 historical signals across 86 entry days were checked against dated TWSE/TPEx lists.
+- 97 confirmed exchange-eligible (listed, sell-first suspension flag blank).
+- 11 confirmed ineligible: 5 disposal-period trades and 6 sell-first-suspended trades.
+- 5 pending: 德宏 on 2026-05-25 and 2026-05-29; 訊達 on 2026-07-06, 2026-07-08 and 2026-09-07. Missing from dated lists but no separately corroborated prohibition yet; do not silently treat as eligible or prohibited.
+- Each exceptional record includes dated official evidence; disposal dates are checked for stock itself, not its warrants or convertible bonds.
+- Confirmed restrictions remove that entry-day execution only; raw signals and historical LAB remain intact.
+- Exchange eligibility does not establish the user's broker inventory, quota, or opening-fill feasibility.
+
+User-confirmed execution decisions:
+- Skip signals whose entry day is inside a confirmed disposal period or sell-first suspension.
+- Do not short when opening downside to the daily lower limit is insufficient ("沒肉"). Room thresholds of 1%, 2%, 3% remain research candidates, not a locked selected value.
+- **Superseding earlier conversation assumption:** redistribute the NT$5m daily pool equally across surviving original strategy signals after eligibility/room filtering. Do not leave skipped allocations idle when another original signal survives; do not select a replacement stock outside original signals. If none survive, no execution that day.
+- Stop-loss/profit-target changes are not accepted yet. First correct eligibility and allocation, then recalculate the executable baseline and reassess risk.
+
+Earlier conversation numbers after filters used idle skipped allocations and provisional eligibility exclusions. They are not results of the latest confirmed model and must not be quoted as its performance.
+The official `WOO_STRATEGY_V1` raw backtest and forward LAB have not been rewritten; this audit is an additional execution layer.
