@@ -8,6 +8,20 @@
 
 ---
 
+## Strategy-specific state files
+
+Use these when a ChatGPT conversation is dedicated to one strategy. Read this master file first, then the matching strategy file, then verify live JSON/script state before changing anything.
+
+- SS 發動續強・真領漲 → `docs/strategies/ss_momentum_leader.md`
+- SS 新轉強・當日落後補漲 → `docs/strategies/ss_new_strength_laggard.md`
+- A 中期弱短期強・落後補漲 → `docs/strategies/a_midweak_shortstrong.md`
+- A 高檔整理・長期強股 → `docs/strategies/a_high_consolidation.md`
+- A 修復中・弱股隔日當沖空 → `docs/strategies/a_repair_intraday_short.md`
+
+Cross-strategy capital allocation, portfolio overlap, workflow architecture and system-wide decisions remain in WOO MASTER / this file.
+
+---
+
 ## 1. Project principles
 
 - WOO FLOW = sector/stock structure engine and market data layer.
