@@ -206,10 +206,23 @@ def simulate(hist, idx, dates, didx, signal_date, alert):
     if not isinstance(entry, (int, float)) or entry <= 0 or not isinstance(exit_price, (int, float)) or exit_price <= 0:
         return None
 
+    holding_rows = []
+    for di in range(entry_i, exit_i + 1):
+        row = strat.rowat(hist, idx, code, dates[di])
+        if row:
+            holding_rows.append(row)
+
+    highs = [r.get("high") for r in holding_rows if isinstance(r.get("high"), (int, float))]
+    lows = [r.get("low") for r in holding_rows if isinstance(r.get("low"), (int, float))]
+
     if alert["side"] == "SHORT":
         ret = (entry - exit_price) / entry * 100
+        mfe = (entry - min(lows)) / entry * 100 if lows else None
+        mae = (entry - max(highs)) / entry * 100 if highs else None
     else:
         ret = (exit_price / entry - 1) * 100
+        mfe = (max(highs) / entry - 1) * 100 if highs else None
+        mae = (min(lows) / entry - 1) * 100 if lows else None
 
     return {
         "signal_date": signal_date,
@@ -218,6 +231,8 @@ def simulate(hist, idx, dates, didx, signal_date, alert):
         "entry_price": round(entry, 4),
         "exit_price": round(exit_price, 4),
         "return_pct": round(ret, 4),
+        "mfe_pct": round(mfe, 4) if isinstance(mfe, (int, float)) else None,
+        "mae_pct": round(mae, 4) if isinstance(mae, (int, float)) else None,
         "gross_pnl_ntd_at_500k": round(POSITION_SIZE_NTD * ret / 100, 2),
         **alert,
     }
