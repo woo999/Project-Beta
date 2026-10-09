@@ -167,9 +167,9 @@ Scope: entry-day exchange eligibility for cash sell-first day trading, not margi
 
 - 113 historical signals across 86 entry days were checked against dated TWSE/TPEx lists.
 - 97 confirmed exchange-eligible (listed, sell-first suspension flag blank).
-- 11 confirmed ineligible: 5 disposal-period trades and 6 sell-first-suspended trades.
-- 5 pending: 德宏 on 2026-05-25 and 2026-05-29; 訊達 on 2026-07-06, 2026-07-08 and 2026-09-07. Missing from dated lists but no separately corroborated prohibition yet; do not silently treat as eligible or prohibited.
-- Each exceptional record includes dated official evidence; disposal dates are checked for stock itself, not its warrants or convertible bonds.
+- 16 confirmed ineligible: 11 supported by official dated evidence and 5 subsequently confirmed by WOO.
+- No pending entries remain. WOO confirmed 德宏 on 2026-05-25 and 2026-05-29 could not cash-day-trade (specific regulatory cause unspecified); WOO confirmed 訊達 on 2026-07-06, 2026-07-08 and 2026-09-07 was in disposal. Preserve user confirmation separately from official evidence.
+- The 11 independently verified exceptional records include dated official evidence; the other 5 explicitly cite user confirmation. Disposal dates are checked for stock itself, not its warrants or convertible bonds.
 - Confirmed restrictions remove that entry-day execution only; raw signals and historical LAB remain intact.
 - Exchange eligibility does not establish the user's broker inventory, quota, or opening-fill feasibility.
 
@@ -181,3 +181,23 @@ User-confirmed execution decisions:
 
 Earlier conversation numbers after filters used idle skipped allocations and provisional eligibility exclusions. They are not results of the latest confirmed model and must not be quoted as its performance.
 The official `WOO_STRATEGY_V1` raw backtest and forward LAB have not been rewritten; this audit is an additional execution layer.
+
+## Corrected execution research — 2026-10-09
+
+Result: `docs/data/a_repair_intraday_short_execution_research.json`.
+Window: 2025-10-09 through 2026-10-08. NTD 5m pool, divided equally AFTER filters.
+Returns calculated from exact entry/exit prices, so tiny rounding differences from old conversation numbers are expected.
+
+| Scenario | Trades | Entry days | Gross P&L NTD | Max cumulative close P&L drawdown NTD |
+|---|---:|---:|---:|---:|
+| Raw signals | 113 | 86 | 4,402,119.29 | 1,218,665.12 |
+| Eligibility filter only | 97 | 80 | 4,878,579.44 | 700,175.47 |
+| Eligibility + estimated room >= 1%, 2%, or 3% | 96 | 79 | 5,353,579.44 | 298,346.21 |
+
+The room-filtered scenarios are identical: only 3324 雙鴻 on 2026-06-08 is removed (estimated room 0.1%). Threshold selection remains unresolved.
+Room-filtered wins/losses/flats: 67/23/6; win rate 69.79% including flats.
+Max drawdown: 2026-05-27 peak through 2026-06-02 trough.
+Worst remaining day: 2026-06-01 雙鴻, gross -NTD 276,497.70.
+Next risk review should start with that trade and other remaining large-loss executions.
+
+These are in-sample gross simulations, exclude all execution costs and broker feasibility, and do not measure intraday portfolio drawdown. Prior idle-allocation results are superseded for the current user model. No hard stop-loss or profit target has been adopted.
