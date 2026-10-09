@@ -201,3 +201,10 @@ Worst remaining day: 2026-06-01 雙鴻, gross -NTD 276,497.70.
 Next risk review should start with that trade and other remaining large-loss executions.
 
 These are in-sample gross simulations, exclude all execution costs and broker feasibility, and do not measure intraday portfolio drawdown. Prior idle-allocation results are superseded for the current user model. No hard stop-loss or profit target has been adopted.
+
+## Intraday profit giveback candidates — 2026-10-09
+
+Candidate data: `docs/data/a_repair_intraday_short_giveback_candidates.json`.
+Reviewed the 96 eligibility/room-filtered executions. Descriptive screen: MFE >= 2% and close return <= 25% of MFE. Found 9 candidates: 6 close losses and 3 small close gains.
+Largest peak-to-close giveback candidates: 2026-04-27 加百裕 (MFE +2.907%, close -2.6163%) and 2026-04-09 群創 (MFE +3.0189%, close -1.6981%).
+These daily OHLC observations identify profit giveback, but cannot confirm that the opening short was near the intraday high or that the path was a clean selloff followed by a V reversal. Next inspect minute candles, low timing, rebound timing and executable exit prices. MFE is hindsight, not an assumed achievable fill. The screening thresholds are not adopted profit-taking rules.
