@@ -5,8 +5,8 @@
   "scope": "Historical entry-day exchange eligibility for cash sell-first day trading; broker inventory and quota not verified",
   "counts": {
     "CONFIRMED_EXCHANGE_ELIGIBLE": 97,
-    "CONFIRMED_INELIGIBLE": 11,
-    "PENDING_VERIFICATION": 5
+    "CONFIRMED_INELIGIBLE": 16,
+    "PENDING_VERIFICATION": 0
   },
   "pending_policy": "Retain original signals; do not classify as prohibited or eligible until corroborated",
   "capital_policy": "NTD 5m divided equally among that day's surviving original strategy signals after eligibility and room filters; no replacement stock; no trades if none survive",
@@ -841,9 +841,17 @@
         "https://www.tpex.org.tw/www/zh-tw/intraday/list?date=2026/05/25&response=json"
       ],
       "daily_list_flag": null,
-      "status": "PENDING_VERIFICATION",
-      "reason": "Absent from both daily lists; no separately confirmed prohibition; retain original signal",
-      "evidence": []
+      "status": "CONFIRMED_INELIGIBLE",
+      "reason": "User verified entry day not eligible for cash day trading; specific regulatory cause not supplied",
+      "evidence": [
+        {
+          "type": "USER_CONFIRMATION",
+          "confirmed_on": "2026-10-09",
+          "entry_date": "2026-05-25",
+          "restriction": "CASH_DAY_TRADING_UNAVAILABLE",
+          "source": "WOO confirmation in strategy conversation; no official announcement dates supplied"
+        }
+      ]
     },
     {
       "signal_date": "2026-05-22",
@@ -915,9 +923,17 @@
         "https://www.tpex.org.tw/www/zh-tw/intraday/list?date=2026/05/29&response=json"
       ],
       "daily_list_flag": null,
-      "status": "PENDING_VERIFICATION",
-      "reason": "Absent from both daily lists; no separately confirmed prohibition; retain original signal",
-      "evidence": []
+      "status": "CONFIRMED_INELIGIBLE",
+      "reason": "User verified entry day not eligible for cash day trading; specific regulatory cause not supplied",
+      "evidence": [
+        {
+          "type": "USER_CONFIRMATION",
+          "confirmed_on": "2026-10-09",
+          "entry_date": "2026-05-29",
+          "restriction": "CASH_DAY_TRADING_UNAVAILABLE",
+          "source": "WOO confirmation in strategy conversation; no official announcement dates supplied"
+        }
+      ]
     },
     {
       "signal_date": "2026-05-29",
@@ -1158,9 +1174,17 @@
         "https://www.tpex.org.tw/www/zh-tw/intraday/list?date=2026/07/06&response=json"
       ],
       "daily_list_flag": null,
-      "status": "PENDING_VERIFICATION",
-      "reason": "Absent from both daily lists; no separately confirmed prohibition; retain original signal",
-      "evidence": []
+      "status": "CONFIRMED_INELIGIBLE",
+      "reason": "User verified disposal on entry day",
+      "evidence": [
+        {
+          "type": "USER_CONFIRMATION",
+          "confirmed_on": "2026-10-09",
+          "entry_date": "2026-07-06",
+          "restriction": "DISPOSAL",
+          "source": "WOO confirmation in strategy conversation; no official announcement dates supplied"
+        }
+      ]
     },
     {
       "signal_date": "2026-07-06",
@@ -1185,9 +1209,17 @@
         "https://www.tpex.org.tw/www/zh-tw/intraday/list?date=2026/07/08&response=json"
       ],
       "daily_list_flag": null,
-      "status": "PENDING_VERIFICATION",
-      "reason": "Absent from both daily lists; no separately confirmed prohibition; retain original signal",
-      "evidence": []
+      "status": "CONFIRMED_INELIGIBLE",
+      "reason": "User verified disposal on entry day",
+      "evidence": [
+        {
+          "type": "USER_CONFIRMATION",
+          "confirmed_on": "2026-10-09",
+          "entry_date": "2026-07-08",
+          "restriction": "DISPOSAL",
+          "source": "WOO confirmation in strategy conversation; no official announcement dates supplied"
+        }
+      ]
     },
     {
       "signal_date": "2026-07-09",
@@ -1320,9 +1352,17 @@
         "https://www.tpex.org.tw/www/zh-tw/intraday/list?date=2026/09/07&response=json"
       ],
       "daily_list_flag": null,
-      "status": "PENDING_VERIFICATION",
-      "reason": "Absent from both daily lists; no separately confirmed prohibition; retain original signal",
-      "evidence": []
+      "status": "CONFIRMED_INELIGIBLE",
+      "reason": "User verified disposal on entry day",
+      "evidence": [
+        {
+          "type": "USER_CONFIRMATION",
+          "confirmed_on": "2026-10-09",
+          "entry_date": "2026-09-07",
+          "restriction": "DISPOSAL",
+          "source": "WOO confirmation in strategy conversation; no official announcement dates supplied"
+        }
+      ]
     },
     {
       "signal_date": "2026-09-07",
@@ -1492,5 +1532,9 @@
       "reason": "On historical entry-day list; sell-first suspension flag blank",
       "evidence": []
     }
-  ]
+  ],
+  "confirmation_breakdown": {
+    "official_confirmed_ineligible": 11,
+    "user_confirmed_ineligible": 5
+  }
 }
