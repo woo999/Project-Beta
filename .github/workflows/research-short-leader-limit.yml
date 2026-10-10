@@ -1,0 +1,36 @@
+name: Research short entry after peer limit-up
+on:
+  push:
+    branches: ["research/short-leader-limit-entry-20261010"]
+    paths:
+      - "scripts/research_short_leader_limit_entry.py"
+      - "docs/data/a_repair_intraday_short_leader_limit_candidates.json"
+      - ".github/workflows/research-short-leader-limit.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: short-leader-limit-research
+  cancel-in-progress: false
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test historical tick access and event entry
+        env:
+          FINMIND_TOKEN: ${{ secrets.FINMIND_TOKEN }}
+        run: python scripts/research_short_leader_limit_entry.py
+      - name: Record research summary only
+        run: |
+          git config user.name "woo-flow-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/data/a_repair_intraday_short_leader_limit_entry_result.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record short leader-limit entry research outcome"
+            git push origin HEAD:research/short-leader-limit-entry-20261010
+          fi
