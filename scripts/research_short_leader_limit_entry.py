@@ -135,6 +135,8 @@ def run():
                "losses":sum(r["return_pct"]<0 for r in entered),"flats":sum(r["return_pct"]==0 for r in entered),
                "gross_pnl_ntd":sum(r["gross_pnl_ntd"] for r in entered),
                "one_tick_adverse_pnl_ntd":sum(r["one_tick_adverse_pnl_ntd"] for r in entered)}
+    if result["status"] == "BLOCKED_DATA_PERMISSION":
+        result["summaries"] = None  # No data is not zero performance.
     OUT.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n")
     print(json.dumps({"status":result["status"],"processed":len(result["entries"]),"blocker":result.get("blocker")}))
     return result
