@@ -1,0 +1,834 @@
+{
+  "research_date": "2026-10-10",
+  "baseline_trades": 96,
+  "candidate_count": 12,
+  "definition": "For each original opening-qualified weak-stock signal, wait for first OTHER member of its recorded group to trade at daily upper limit. Treat first touching peer as operational leader. Short target on first observed tick at least 1 second later before 13:25; close at official same-day close. Also test 5/10-second delays. No peer trigger means no trade. Allocate original pre-known daily pool shares; no hindsight redistribution.",
+  "status": "PENDING_INTRADAY_DATA",
+  "candidates": [
+    {
+      "entry_date": "2026-01-06",
+      "code": "2359",
+      "name": "所羅門",
+      "group": "機器人",
+      "entry_price": 137.5,
+      "exit_price": 137.5,
+      "baseline_return_pct": 0,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "4540",
+          "name": "全球傳動",
+          "upper": 38.5,
+          "open": 35.7,
+          "high": 38.5,
+          "low": 35.2,
+          "close": 37.9
+        },
+        {
+          "code": "1597",
+          "name": "直得",
+          "upper": 79,
+          "open": 72.2,
+          "high": 75.5,
+          "low": 72.2,
+          "close": 74.4
+        },
+        {
+          "code": "4576",
+          "name": "大銀微系統",
+          "upper": 115.5,
+          "open": 106,
+          "high": 110,
+          "low": 106,
+          "close": 108
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "4540",
+          "name": "全球傳動",
+          "upper": 38.5
+        }
+      ],
+      "target_bar": {
+        "date": "2026-01-06",
+        "open": 137.5,
+        "high": 144,
+        "low": 136.5,
+        "close": 137.5,
+        "volume": 12402867,
+        "money": 1729889193,
+        "turnover": 10824,
+        "spread": 5.5,
+        "pct": 4.1667
+      }
+    },
+    {
+      "entry_date": "2026-01-13",
+      "code": "3042",
+      "name": "晶技",
+      "group": "石英",
+      "entry_price": 81.3,
+      "exit_price": 80.5,
+      "baseline_return_pct": 0.9840098400983975,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "2484",
+          "name": "希華",
+          "upper": 23,
+          "open": 21,
+          "high": 23,
+          "low": 20.75,
+          "close": 23
+        },
+        {
+          "code": "6174",
+          "name": "安碁",
+          "upper": 23,
+          "open": 21.05,
+          "high": 21.75,
+          "low": 20.6,
+          "close": 21.45
+        },
+        {
+          "code": "8182",
+          "name": "加高",
+          "upper": 28.05,
+          "open": 25.5,
+          "high": 26.8,
+          "low": 25.45,
+          "close": 26.3
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "2484",
+          "name": "希華",
+          "upper": 23
+        }
+      ],
+      "target_bar": {
+        "date": "2026-01-13",
+        "open": 81.3,
+        "high": 81.5,
+        "low": 79.9,
+        "close": 80.5,
+        "volume": 1500580,
+        "money": 120580721,
+        "turnover": 1343,
+        "spread": -0.8,
+        "pct": -0.984
+      }
+    },
+    {
+      "entry_date": "2026-01-15",
+      "code": "3441",
+      "name": "聯一光",
+      "group": "光學",
+      "entry_price": 37.55,
+      "exit_price": 37.25,
+      "baseline_return_pct": 0.7989347536617768,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "3362",
+          "name": "先進光",
+          "upper": 111.5,
+          "open": 101.5,
+          "high": 101.5,
+          "low": 99.4,
+          "close": 100
+        },
+        {
+          "code": "3406",
+          "name": "玉晶光",
+          "upper": 504,
+          "open": 460,
+          "high": 460,
+          "low": 449,
+          "close": 450
+        },
+        {
+          "code": "3504",
+          "name": "揚明光",
+          "upper": 57.5,
+          "open": 55.6,
+          "high": 57.5,
+          "low": 55,
+          "close": 57.5
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "3504",
+          "name": "揚明光",
+          "upper": 57.5
+        }
+      ],
+      "target_bar": {
+        "date": "2026-01-15",
+        "open": 37.55,
+        "high": 37.95,
+        "low": 37.15,
+        "close": 37.25,
+        "volume": 79401,
+        "money": 2973239,
+        "turnover": 88,
+        "spread": -0.3,
+        "pct": -0.7989
+      }
+    },
+    {
+      "entry_date": "2026-04-09",
+      "code": "3481",
+      "name": "群創",
+      "group": "面板",
+      "entry_price": 26.5,
+      "exit_price": 26.95,
+      "baseline_return_pct": -1.698113207547167,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "6116",
+          "name": "彩晶",
+          "upper": 9.24,
+          "open": 8.44,
+          "high": 9.1,
+          "low": 8.32,
+          "close": 8.75
+        },
+        {
+          "code": "2409",
+          "name": "友達",
+          "upper": 18.75,
+          "open": 17.2,
+          "high": 18.75,
+          "low": 16.8,
+          "close": 18.75
+        },
+        {
+          "code": "8105",
+          "name": "凌巨",
+          "upper": 14.9,
+          "open": 13.65,
+          "high": 14.1,
+          "low": 13.45,
+          "close": 13.75
+        },
+        {
+          "code": "6120",
+          "name": "達運",
+          "upper": 14.9,
+          "open": 13.8,
+          "high": 14.9,
+          "low": 13.5,
+          "close": 14.45
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "2409",
+          "name": "友達",
+          "upper": 18.75
+        },
+        {
+          "code": "6120",
+          "name": "達運",
+          "upper": 14.9
+        }
+      ],
+      "target_bar": {
+        "date": "2026-04-09",
+        "open": 26.5,
+        "high": 28,
+        "low": 25.7,
+        "close": 26.95,
+        "volume": 585534130,
+        "money": 15861074912,
+        "turnover": 175316,
+        "spread": 0.75,
+        "pct": 2.8626
+      }
+    },
+    {
+      "entry_date": "2026-04-22",
+      "code": "2337",
+      "name": "旺宏",
+      "group": "記憶體SNDK",
+      "entry_price": 132.5,
+      "exit_price": 134.5,
+      "baseline_return_pct": -1.509433962264151,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "8299",
+          "name": "群聯",
+          "upper": 1940,
+          "open": 1775,
+          "high": 1820,
+          "low": 1725,
+          "close": 1775
+        },
+        {
+          "code": "3260",
+          "name": "威剛",
+          "upper": 432.5,
+          "open": 403,
+          "high": 422.5,
+          "low": 386.5,
+          "close": 421.5
+        },
+        {
+          "code": "2451",
+          "name": "創見",
+          "upper": 292,
+          "open": 265.5,
+          "high": 270,
+          "low": 258.5,
+          "close": 269
+        },
+        {
+          "code": "4967",
+          "name": "十銓",
+          "upper": 262,
+          "open": 246.5,
+          "high": 262,
+          "low": 235,
+          "close": 262
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "4967",
+          "name": "十銓",
+          "upper": 262
+        }
+      ],
+      "target_bar": {
+        "date": "2026-04-22",
+        "open": 132.5,
+        "high": 138.5,
+        "low": 130,
+        "close": 134.5,
+        "volume": 163349597,
+        "money": 21836929238,
+        "turnover": 105929,
+        "spread": 2,
+        "pct": 1.5094
+      }
+    },
+    {
+      "entry_date": "2026-04-28",
+      "code": "6770",
+      "name": "力積電",
+      "group": "記憶體MU",
+      "entry_price": 55.2,
+      "exit_price": 55,
+      "baseline_return_pct": 0.36231884057971525,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "2408",
+          "name": "南亞科",
+          "upper": 249,
+          "open": 234.5,
+          "high": 242.5,
+          "low": 231.5,
+          "close": 237.5
+        },
+        {
+          "code": "2344",
+          "name": "華邦電",
+          "upper": 103,
+          "open": 95.3,
+          "high": 96.9,
+          "low": 93.5,
+          "close": 95.5
+        },
+        {
+          "code": "3006",
+          "name": "晶豪科",
+          "upper": 184.5,
+          "open": 166,
+          "high": 184.5,
+          "low": 166,
+          "close": 184.5
+        },
+        {
+          "code": "5351",
+          "name": "鈺創",
+          "upper": 70.6,
+          "open": 65.5,
+          "high": 70.6,
+          "low": 64.3,
+          "close": 70.6
+        },
+        {
+          "code": "5289",
+          "name": "宜鼎",
+          "upper": 1305,
+          "open": 1220,
+          "high": 1305,
+          "low": 1190,
+          "close": 1305
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "3006",
+          "name": "晶豪科",
+          "upper": 184.5
+        },
+        {
+          "code": "5351",
+          "name": "鈺創",
+          "upper": 70.6
+        },
+        {
+          "code": "5289",
+          "name": "宜鼎",
+          "upper": 1305
+        }
+      ],
+      "target_bar": {
+        "date": "2026-04-28",
+        "open": 55.2,
+        "high": 55.7,
+        "low": 54.2,
+        "close": 55,
+        "volume": 101666278,
+        "money": 5597284540,
+        "turnover": 48496,
+        "spread": 0.5,
+        "pct": 0.9174
+      }
+    },
+    {
+      "entry_date": "2026-05-21",
+      "code": "8182",
+      "name": "加高",
+      "group": "石英",
+      "entry_price": 37.4,
+      "exit_price": 37.6,
+      "baseline_return_pct": -0.5347593582887776,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "2484",
+          "name": "希華",
+          "upper": 48.7,
+          "open": 45,
+          "high": 46.5,
+          "low": 44.1,
+          "close": 44.85
+        },
+        {
+          "code": "3042",
+          "name": "晶技",
+          "upper": 162.5,
+          "open": 154,
+          "high": 162.5,
+          "low": 151.5,
+          "close": 160
+        },
+        {
+          "code": "6174",
+          "name": "安碁",
+          "upper": 47.75,
+          "open": 45.35,
+          "high": 46,
+          "low": 42.5,
+          "close": 42.5
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "3042",
+          "name": "晶技",
+          "upper": 162.5
+        }
+      ],
+      "target_bar": {
+        "date": "2026-05-21",
+        "open": 37.4,
+        "high": 38.8,
+        "low": 37.35,
+        "close": 37.6,
+        "volume": 2399867,
+        "money": 91245155,
+        "turnover": 1873,
+        "spread": 0.95,
+        "pct": 2.5921
+      }
+    },
+    {
+      "entry_date": "2026-05-26",
+      "code": "3715",
+      "name": "定穎投控",
+      "group": "PCB",
+      "entry_price": 181,
+      "exit_price": 186,
+      "baseline_return_pct": -2.7624309392265194,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "3189",
+          "name": "景碩",
+          "upper": 735,
+          "open": 670,
+          "high": 719,
+          "low": 654,
+          "close": 696
+        },
+        {
+          "code": "8046",
+          "name": "南電",
+          "upper": 972,
+          "open": 888,
+          "high": 947,
+          "low": 871,
+          "close": 922
+        },
+        {
+          "code": "3037",
+          "name": "欣興",
+          "upper": 1085,
+          "open": 992,
+          "high": 1085,
+          "low": 989,
+          "close": 1085
+        },
+        {
+          "code": "4927",
+          "name": "泰鼎-KY",
+          "upper": 68,
+          "open": 63.9,
+          "high": 65.9,
+          "low": 59.7,
+          "close": 61.2
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "3037",
+          "name": "欣興",
+          "upper": 1085
+        }
+      ],
+      "target_bar": {
+        "date": "2026-05-26",
+        "open": 181,
+        "high": 188,
+        "low": 178,
+        "close": 186,
+        "volume": 20563558,
+        "money": 3800840389,
+        "turnover": 18365,
+        "spread": 7,
+        "pct": 3.9106
+      }
+    },
+    {
+      "entry_date": "2026-06-02",
+      "code": "6112",
+      "name": "邁達特",
+      "group": "軟體",
+      "entry_price": 47.5,
+      "exit_price": 48.15,
+      "baseline_return_pct": -1.3684210526315759,
+      "allocated_ntd": 1666666.6666666667,
+      "peers": [
+        {
+          "code": "6148",
+          "name": "驊宏資",
+          "upper": 34.8,
+          "open": 33.6,
+          "high": 34.8,
+          "low": 32.6,
+          "close": 34.8
+        },
+        {
+          "code": "6140",
+          "name": "訊達",
+          "upper": 22.7,
+          "open": 21.5,
+          "high": 22.7,
+          "low": 21.3,
+          "close": 22.7
+        },
+        {
+          "code": "2468",
+          "name": "華經",
+          "upper": 40.15,
+          "open": 40.05,
+          "high": 40.15,
+          "low": 38.9,
+          "close": 40.15
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "6148",
+          "name": "驊宏資",
+          "upper": 34.8
+        },
+        {
+          "code": "6140",
+          "name": "訊達",
+          "upper": 22.7
+        },
+        {
+          "code": "2468",
+          "name": "華經",
+          "upper": 40.15
+        }
+      ],
+      "target_bar": {
+        "date": "2026-06-02",
+        "open": 47.5,
+        "high": 49.9,
+        "low": 46.4,
+        "close": 48.15,
+        "volume": 7470769,
+        "money": 361886007,
+        "turnover": 5767,
+        "spread": 1.1,
+        "pct": 2.3379
+      }
+    },
+    {
+      "entry_date": "2026-08-12",
+      "code": "8261",
+      "name": "富鼎",
+      "group": "被動元件",
+      "entry_price": 184,
+      "exit_price": 184,
+      "baseline_return_pct": 0,
+      "allocated_ntd": 5000000,
+      "peers": [
+        {
+          "code": "6155",
+          "name": "鈞寶",
+          "upper": 60.7,
+          "open": 54.8,
+          "high": 60,
+          "low": 54.7,
+          "close": 58.4
+        },
+        {
+          "code": "2492",
+          "name": "華新科",
+          "upper": 330.5,
+          "open": 298,
+          "high": 312,
+          "low": 288,
+          "close": 288
+        },
+        {
+          "code": "2327",
+          "name": "國巨",
+          "upper": 678,
+          "open": 607,
+          "high": 625,
+          "low": 600,
+          "close": 602
+        },
+        {
+          "code": "5328",
+          "name": "華容",
+          "upper": 72.6,
+          "open": 66.7,
+          "high": 67.2,
+          "low": 65,
+          "close": 67.2
+        },
+        {
+          "code": "8043",
+          "name": "蜜望實",
+          "upper": 162,
+          "open": 147.5,
+          "high": 152,
+          "low": 142.5,
+          "close": 147.5
+        },
+        {
+          "code": "2375",
+          "name": "凱美",
+          "upper": 141,
+          "open": 126.5,
+          "high": 131.5,
+          "low": 125,
+          "close": 127
+        },
+        {
+          "code": "6173",
+          "name": "信昌電",
+          "upper": 203.5,
+          "open": 186.5,
+          "high": 203.5,
+          "low": 182.5,
+          "close": 203.5
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "6173",
+          "name": "信昌電",
+          "upper": 203.5
+        }
+      ],
+      "target_bar": {
+        "date": "2026-08-12",
+        "open": 184,
+        "high": 190,
+        "low": 183.5,
+        "close": 184,
+        "volume": 4859012,
+        "money": 903436858,
+        "turnover": 5244,
+        "spread": 0,
+        "pct": 0
+      }
+    },
+    {
+      "entry_date": "2026-08-13",
+      "code": "1303",
+      "name": "南亞",
+      "group": "南亞族群",
+      "entry_price": 191,
+      "exit_price": 189,
+      "baseline_return_pct": 1.0471204188481675,
+      "allocated_ntd": 2500000,
+      "peers": [
+        {
+          "code": "5475",
+          "name": "德宏",
+          "upper": 163,
+          "open": 157.5,
+          "high": 163,
+          "low": 148.5,
+          "close": 163
+        },
+        {
+          "code": "1802",
+          "name": "台玻",
+          "upper": 63.3,
+          "open": 58.6,
+          "high": 59,
+          "low": 56.9,
+          "close": 56.9
+        },
+        {
+          "code": "5340",
+          "name": "建榮",
+          "upper": 87.5,
+          "open": 78.5,
+          "high": 82.5,
+          "low": 77.3,
+          "close": 78.6
+        },
+        {
+          "code": "8358",
+          "name": "金居",
+          "upper": 460,
+          "open": 445,
+          "high": 445,
+          "low": 417,
+          "close": 421
+        },
+        {
+          "code": "1815",
+          "name": "富喬",
+          "upper": 99,
+          "open": 91.5,
+          "high": 91.5,
+          "low": 89,
+          "close": 89.9
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "5475",
+          "name": "德宏",
+          "upper": 163
+        }
+      ],
+      "target_bar": {
+        "date": "2026-08-13",
+        "open": 191,
+        "high": 195,
+        "low": 184,
+        "close": 189,
+        "volume": 96257719,
+        "money": 18212172752,
+        "turnover": 64746,
+        "spread": 0,
+        "pct": 0
+      }
+    },
+    {
+      "entry_date": "2026-08-13",
+      "code": "6182",
+      "name": "合晶",
+      "group": "矽晶圓",
+      "entry_price": 107.5,
+      "exit_price": 113,
+      "baseline_return_pct": -5.116279069767442,
+      "allocated_ntd": 2500000,
+      "peers": [
+        {
+          "code": "6488",
+          "name": "環球晶",
+          "upper": 1025,
+          "open": 970,
+          "high": 1025,
+          "low": 950,
+          "close": 1025
+        },
+        {
+          "code": "3532",
+          "name": "台勝科",
+          "upper": 343,
+          "open": 334.5,
+          "high": 343,
+          "low": 320.5,
+          "close": 343
+        },
+        {
+          "code": "3707",
+          "name": "漢磊",
+          "upper": 69.8,
+          "open": 64.1,
+          "high": 68.9,
+          "low": 64.1,
+          "close": 65.6
+        }
+      ],
+      "touching_peers": [
+        {
+          "code": "6488",
+          "name": "環球晶",
+          "upper": 1025
+        },
+        {
+          "code": "3532",
+          "name": "台勝科",
+          "upper": 343
+        }
+      ],
+      "target_bar": {
+        "date": "2026-08-13",
+        "open": 107.5,
+        "high": 113,
+        "low": 105.5,
+        "close": 113,
+        "volume": 32174191,
+        "money": 3543546083,
+        "turnover": 18260,
+        "spread": 10,
+        "pct": 9.7087
+      }
+    }
+  ]
+}
