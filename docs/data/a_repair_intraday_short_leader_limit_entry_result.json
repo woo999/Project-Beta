@@ -1,0 +1,47 @@
+{
+  "generated_at": "2026-10-10T02:42:32.728475+00:00",
+  "status": "BLOCKED_DATA_PERMISSION",
+  "candidate_count": 12,
+  "definition": "For each original opening-qualified weak-stock signal, wait for first OTHER member of its recorded group to trade at daily upper limit. Treat first touching peer as operational leader. Short target on first observed tick at least 1 second later before 13:25; close at official same-day close. Also test 5/10-second delays. No peer trigger means no trade. Allocate original pre-known daily pool shares; no hindsight redistribution.",
+  "allocation": "Reserve each of the original 96 opening-qualified signals' original pool share. Non-triggered shares remain idle; never allocate using future trigger counts.",
+  "limitations": [
+    "Next observed trade is a market-entry proxy, not bid/ask execution; no size, fees, taxes, impact or availability model.",
+    "First peer to touch limit is the operational leader definition, not hindsight closing leader.",
+    "Only intraday trigger research; baseline and production rules unchanged."
+  ],
+  "entries": [
+    {
+      "date": "2026-01-06",
+      "name": "所羅門",
+      "status": "PENDING_DATA",
+      "reason": "HISTORICAL_TICK_ACCESS_LEVEL_REQUIRED"
+    }
+  ],
+  "blocker": "HISTORICAL_TICK_ACCESS_LEVEL_REQUIRED",
+  "summaries": {
+    "1": {
+      "entered": 0,
+      "wins": 0,
+      "losses": 0,
+      "flats": 0,
+      "gross_pnl_ntd": 0,
+      "one_tick_adverse_pnl_ntd": 0
+    },
+    "5": {
+      "entered": 0,
+      "wins": 0,
+      "losses": 0,
+      "flats": 0,
+      "gross_pnl_ntd": 0,
+      "one_tick_adverse_pnl_ntd": 0
+    },
+    "10": {
+      "entered": 0,
+      "wins": 0,
+      "losses": 0,
+      "flats": 0,
+      "gross_pnl_ntd": 0,
+      "one_tick_adverse_pnl_ntd": 0
+    }
+  }
+}
