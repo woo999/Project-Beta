@@ -1,11 +1,5 @@
 name: Research short entry after peer limit-up
 on:
-  push:
-    branches: ["research/short-leader-limit-entry-20261010"]
-    paths:
-      - "scripts/research_short_leader_limit_entry.py"
-      - "docs/data/a_repair_intraday_short_leader_limit_candidates.json"
-      - ".github/workflows/research-short-leader-limit.yml"
   workflow_dispatch:
 permissions:
   contents: write
