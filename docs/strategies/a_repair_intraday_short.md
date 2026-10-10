@@ -227,3 +227,19 @@ Same 96 eligible/room-filtered trades. 10 of the 11 selected examples had all tr
 The first group filter removes 20 winners, 10 losers and 1 flat. Yesterday-high stop hits 23 of the 78 entered trades, including 11 original winners. Prior20-high stop hits only 2 trades: 長榮 on 2026-06-02 improves from -2.6667% to -0.2222%, while 邁達特 that day worsens from -1.3684% to -2.2105%. Its slight total improvement is not robust evidence.
 
 Use equal NTD5m allocation after skips. All stop simulations assume perfect exact barrier fills, exclude costs/slippage; fixed percentage comparisons also use theoretical unticked barriers. Group-opening diagnostics assume completed opening prints while retaining open fills and are optimistic, not executable pre-open rules. User's "high" was not precisely defined; yesterday/5/20-session highs are explicit research definitions, not a claim about intraday prior-high stops. No strategy/LAB signal or actual trade record was changed.
+
+## Sector influence clarification and leader-limit event entry — 2026-10-10
+
+WOO clarified that the question was sector influence, not an opening sector filter. Peer-excluded open-to-close comovement across the 96 executions: Pearson 0.71545; 67/90 nonflat trades same direction. This is contemporaneous association, not causal influence or a leading signal. For the 11 selected high-MAE cases, 9/10 nonflat cases moved with other group stocks.
+
+WOO then authorized testing: wait until a same-group leader touches upper limit, market-short the original weak-stock candidate, cover same-day close. Research operational definition: first OTHER group member to touch limit (not hindsight closing leader), next target tick after 1 second, also 5/10-second sensitivity; no entry after continuous session ends. 12 of the 96 signals across 11 dates have a peer-limit touch in daily data; remaining 84 have no candidate trigger under this definition.
+
+Research branch: `research/short-leader-limit-entry-20261010`.
+- `docs/data/a_repair_intraday_short_leader_limit_candidates.json`
+- `scripts/research_short_leader_limit_entry.py`
+- `docs/data/a_repair_intraday_short_leader_limit_entry_result.json`
+- manual workflow `.github/workflows/research-short-leader-limit.yml`
+
+Actual GitHub Actions run 38017939402 successfully executed the access probe with the project's existing FINMIND_TOKEN but provider rejected historical tick access: HISTORICAL_TICK_ACCESS_LEVEL_REQUIRED. Local unauthenticated tick/KBar probes were also rejected. Result is BLOCKED_DATA_PERMISSION, performance summaries null, NOT zero profit. Need historical tick-capable access or externally supplied timestamped intraday data. No true trigger-entry return or MAE has been computed.
+
+Candidate-pool event simulation reserves original known opening-qualified pool shares; nontriggered shares remain idle, avoiding hindsight allocation based on future trigger counts. This is an experimental convention, not a revision of WOO's confirmed post-filter opening-pool allocation. No production strategy or LAB signal changed.
