@@ -208,3 +208,22 @@ Candidate data: `docs/data/a_repair_intraday_short_giveback_candidates.json`.
 Reviewed the 96 eligibility/room-filtered executions. Descriptive screen: MFE >= 2% and close return <= 25% of MFE. Found 9 candidates: 6 close losses and 3 small close gains.
 Largest peak-to-close giveback candidates: 2026-04-27 加百裕 (MFE +2.907%, close -2.6163%) and 2026-04-09 群創 (MFE +3.0189%, close -1.6981%).
 These daily OHLC observations identify profit giveback, but cannot confirm that the opening short was near the intraday high or that the path was a clean selloff followed by a V reversal. Next inspect minute candles, low timing, rebound timing and executable exit prices. MFE is hindsight, not an assumed achievable fill. The screening thresholds are not adopted profit-taking rules.
+
+## User exit constraint and sector / stop comparison — 2026-10-10
+
+WOO confirmed on 2026-10-09 that the working strategy exits only at same-day close, accepting losses. On 2026-10-10 WOO selected 11 high-MAE examples and requested sector context and a comparative "break above high" stop experiment. This authorizes research, not adoption of a stop or a changed production rule.
+
+Research: `docs/data/a_repair_intraday_short_sector_stop_research.json`.
+Same 96 eligible/room-filtered trades. 10 of the 11 selected examples had all tracked group members open higher. Group closing strength is descriptive hindsight, never an opening filter.
+
+| Experiment | Trades | Win rate incl flats | Gross P&L NTD | Max cumulative daily P&L drawdown NTD |
+|---|---:|---:|---:|---:|
+| Baseline close exit | 96 | 69.79% | 5,353,579 | 298,346 |
+| Skip all-positive group opening with mean gap >=1% | 65 | 72.31% | 3,588,176 | 304,362 |
+| Skip open >= yesterday high +1 tick | 78 | 70.51% | 3,938,167 | 304,362 |
+| Yesterday high +1 tick stop, skip already crossed at open | 78 | 56.41% | 2,414,871 | 378,268 |
+| Prior 20-session high +1 tick stop | 96 | 69.79% | 5,380,285 | 276,498 |
+
+The first group filter removes 20 winners, 10 losers and 1 flat. Yesterday-high stop hits 23 of the 78 entered trades, including 11 original winners. Prior20-high stop hits only 2 trades: 長榮 on 2026-06-02 improves from -2.6667% to -0.2222%, while 邁達特 that day worsens from -1.3684% to -2.2105%. Its slight total improvement is not robust evidence.
+
+Use equal NTD5m allocation after skips. All stop simulations assume perfect exact barrier fills, exclude costs/slippage; fixed percentage comparisons also use theoretical unticked barriers. Group-opening diagnostics assume completed opening prints while retaining open fills and are optimistic, not executable pre-open rules. User's "high" was not precisely defined; yesterday/5/20-session highs are explicit research definitions, not a claim about intraday prior-high stops. No strategy/LAB signal or actual trade record was changed.
