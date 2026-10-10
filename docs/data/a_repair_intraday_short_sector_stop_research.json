@@ -20267,5 +20267,66 @@
         "reference_close": 254
       }
     }
-  ]
+  ],
+  "entry_only_comparison": {
+    "method": "Opening diagnostics only; closing exit unchanged; 5m daily pool reallocated among remaining original signals. Leader is strongest prior-signal-day 20-session return, not hindsight day leader. Flat/lower opening means gap <=0.",
+    "limitations": "Same-open fills after observing group opening prints are optimistic. No delayed intraday entry simulated. No costs/impact. No rule adopted.",
+    "results": [
+      {
+        "name": "族群全高開且平均≥1%跳過",
+        "n": 65,
+        "win": 72.3076923076923,
+        "pnl": 3588176.1550360387,
+        "dd": 304362.40906325565,
+        "w": 47,
+        "l": 13,
+        "f": 5,
+        "days": 55
+      },
+      {
+        "name": "族群平均高開≥2%跳過",
+        "n": 79,
+        "win": 69.62025316455697,
+        "pnl": 3894988.569236608,
+        "dd": 414619.24281386053,
+        "w": 55,
+        "l": 18,
+        "f": 6,
+        "days": 67
+      },
+      {
+        "name": "族群平均平低開才空",
+        "n": 23,
+        "win": 78.26086956521739,
+        "pnl": 1398900.0958562708,
+        "dd": 32175.03217503219,
+        "w": 18,
+        "l": 2,
+        "f": 3,
+        "days": 21
+      },
+      {
+        "name": "前日20日最強股平低開才空",
+        "n": 32,
+        "win": 75,
+        "pnl": 1936748.2425973432,
+        "dd": 98870.05649717525,
+        "w": 24,
+        "l": 5,
+        "f": 3,
+        "days": 28
+      },
+      {
+        "name": "同族其他股平均平低開才空",
+        "n": 27,
+        "win": 74.07407407407408,
+        "pnl": 1674723.7759525527,
+        "dd": 65789.47368421056,
+        "w": 20,
+        "l": 3,
+        "f": 4,
+        "days": 24
+      }
+    ]
+  }
 }
