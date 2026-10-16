@@ -16,7 +16,7 @@ LEADER_MEMORY_PATH = ROOT / "docs" / "data" / "leader_memory.json"
 STATUS_PATH = ROOT / "docs" / "data" / "market_status.json"
 API = "https://api.finmindtrade.com/api/v4/data"
 TOKEN = os.environ.get("FINMIND_TOKEN", "").strip()
-BACKFILL_DAYS = 700
+BACKFILL_DAYS = 1400
 RANGES = (5, 10, 20, 60, 120, 250)
 # Daily rankings archive enabled.
 # Leader memory archive enabled.
