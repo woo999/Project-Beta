@@ -104,9 +104,9 @@ function onHeartRateChanged(e){
 async function connectGarmin(){
   try{
     if(!navigator.bluetooth) throw new Error('請用 Chrome 或 Edge 開啟');
-    setStatus('請選擇 Garmin / Forerunner…');
+    setStatus('請從清單選擇 Forerunner 965（可能顯示為 Garmin）…');
     device=await navigator.bluetooth.requestDevice({
-      filters:[{services:['heart_rate']}],
+      acceptAllDevices:true,
       optionalServices:['heart_rate']
     });
     device.addEventListener('gattserverdisconnected',()=>{
