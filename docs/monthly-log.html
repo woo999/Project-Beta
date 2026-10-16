@@ -40,7 +40,7 @@ table{width:100%;border-collapse:collapse;margin-top:9px;font-size:10px}th,td{te
     <div class="empty" style="margin-top:9px" id="versionBox">載入中…</div>
   </div>
 
-  <div class="c"><div class="title"><b>訊號回補／出場提醒</b><span class="mut">五套策略 · 提前三個交易日</span></div><div id="dueGrid" class="grid"></div><div id="dueDetails" class="note"></div><div class="note">按策略持有期估算，尚未成交不等於實際部位；遇休市日以預估日期顯示。</div></div>
+  <div class="c"><div class="title"><b>訊號回補／出場提醒</b><span class="mut">五套策略 · 提前三個交易日</span></div><div id="dueGrid" class="grid"></div><div id="dueDetails" class="note"></div><div class="note">按策略持有期估算，尚未成交不等於實際部位；已排除已知台股休市日；未來未建檔的休市日仍可能使預估日期變動。</div></div>
 <div class="c">
     <div class="title"><b>策略 Forward 成績</b><span class="mut">只使用 WOO ALERT 實際盤後跳出的新訊號</span></div>
     <div id="strategyStats"><div class="empty">載入中…</div></div>
@@ -75,7 +75,7 @@ const resultText=r=>({WIN:'勝',LOSS:'敗',FLAT:'平'}[r]||'—');
 
 function dueReminder(lab){
  const now=new Date(),today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
- const holidays=new Set(['2026-10-26','2026-12-25','2027-01-01']);
+ const holidays=new Set(['2026-09-25','2026-09-28','2026-10-09','2026-10-26','2026-12-25','2027-01-01']);
  const iso=d=>d.toISOString().slice(0,10),date=s=>new Date(s+'T12:00:00Z');
  const trade=d=>d.getUTCDay()!==0&&d.getUTCDay()!==6&&!holidays.has(iso(d));
  const next=(s,n)=>{const d=date(s);let k=0;while(k<n){d.setUTCDate(d.getUTCDate()+1);if(trade(d))k++}return iso(d)};
