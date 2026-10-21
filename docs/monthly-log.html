@@ -51,11 +51,11 @@ table{width:100%;border-collapse:collapse;margin-top:9px;font-size:10px}th,td{te
     <div class="note">同一天同一檔股票可能同時符合兩套以上策略。這不是重複下單；WOO LAB 會分開保留，因為每套策略的持有期與驗算結果不同。實際操作只看最高等級作主訊號，其餘標示為「共振」。</div>
     <div class="scroller">
       <table>
-        <thead><tr><th>訊號日</th><th>級別</th><th>策略</th><th>族群</th><th>股票</th><th>方向</th><th>週期</th><th>進場</th><th>出場</th><th>報酬</th><th>結果</th><th>MFE</th><th>MAE</th><th>狀態</th></tr></thead>
+        <thead><tr><th>訊號日</th><th>級別</th><th>策略</th><th>族群</th><th>股票</th><th>方向</th><th>週期</th><th>進場</th><th>出場</th><th>損益 %</th><th>結果</th><th>MFE</th><th>MAE</th><th>狀態</th></tr></thead>
         <tbody id="signalRows"><tr><td colspan="14" class="mut">載入中…</td></tr></tbody>
       </table>
     </div>
-    <div class="note">驗算方式固定沿用策略回測定義：訊號日收盤確認，下一交易日開盤作為實驗進場；固定持有期最後一天收盤作為實驗出場。當沖策略則是下一交易日開盤放空、同日收盤回補。這裡顯示毛報酬，尚未扣手續費、交易稅、滑價與借券／融券成本。</div>
+    <div class="note">驗算方式固定沿用策略回測定義：訊號日收盤確認，下一交易日開盤作為實驗進場；固定持有期最後一天收盤作為實驗出場。當沖策略則是下一交易日開盤放空、同日收盤回補。已結算訊號固定使用結算日收盤價，之後不隨股價變動；持有中顯示最新已匯入交易日的收盤價浮動損益（非即時盤中行情）；等待進場不計損益。這裡顯示毛報酬，尚未扣手續費、交易稅、滑價與借券／融券成本。</div>
   </div>
 
   <div class="c">
@@ -98,7 +98,7 @@ function renderLabSummary(lab){
     '<b>'+ (lab.rule_version||'—') +'</b> · 規則鎖定 '+(lab.locked_at||'—')+' · 下次檢討 '+(lab.next_review_date||'—')+
     '<br>原則：'+(lab.principle||'訊號產生後不回寫')+
     '<br>目前驗算：毛報酬，不含成本。';
-  document.getElementById('labUpdated').textContent=lab.updated_at?'更新 '+lab.updated_at.slice(0,16).replace('T',' '):'尚未建立';
+  document.getElementById('labUpdated').textContent=lab.latest_market_date?'行情截至 '+lab.latest_market_date+' 收盤':'尚未建立行情資料';
 }
 
 function renderStats(lab){
@@ -143,6 +143,10 @@ function renderSignals(lab){
           : '<span class="tag aGrade" style="margin-left:5px">共振</span>')
       : '';
     const hold=(x.strategy||'').includes('當沖')?'當沖':(x.holding_days||'—')+'日';
+    const settled=x.status==='COMPLETED' && x.exit && Number.isFinite(x.gross_return_pct);
+    const floating=x.status==='OPEN' && x.current && Number.isFinite(x.current.gross_return_pct);
+    const pnlPct=settled?x.gross_return_pct:floating?x.current.gross_return_pct:null;
+    const pnlBasis=settled?'已結算 '+x.exit.date:floating?'浮動 '+x.current.date+' 收盤':'';
     return '<tr>'+
       '<td>'+x.signal_date+'</td>'+
       '<td><span class="tag '+(x.grade==='SS'?'ss':'aGrade')+'">'+x.grade+'</span></td>'+
@@ -153,7 +157,7 @@ function renderSignals(lab){
       '<td>'+hold+'</td>'+
       '<td>'+((x.entry?.date||'—')+' @ '+fmtPrice(x.entry?.price))+'</td>'+
       '<td>'+((x.exit?.date||'—')+' @ '+fmtPrice(x.exit?.price))+'</td>'+
-      '<td class="'+cls(x.gross_return_pct)+'">'+fmtPct(x.gross_return_pct)+'</td>'+
+      '<td class="'+cls(pnlPct)+'">'+fmtPct(pnlPct)+(pnlBasis?'<div class="mut" style="font-size:9px;margin-top:3px">'+pnlBasis+'</div>':'')+'</td>'+
       '<td class="'+(x.result==='WIN'?'up':x.result==='LOSS'?'down':'')+'">'+resultText(x.result)+'</td>'+
       '<td class="up">'+fmtPct(x.mfe_pct)+'</td>'+
       '<td class="down">'+fmtPct(x.mae_pct)+'</td>'+
