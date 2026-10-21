@@ -123,6 +123,13 @@ def evaluate(record):
         "basis": "CLOSE",
     }
     record["gross_return_pct"] = round(ret, 4)
+    # Completed signals freeze their last valuation at the actual strategy exit,
+    # rather than continuing to mark them against subsequent market closes.
+    record["current"] = {
+        "date": exit_row["date"],
+        "close": round(exit_price, 4),
+        "gross_return_pct": round(ret, 4),
+    }
     record["result"] = "WIN" if ret > 0 else "LOSS" if ret < 0 else "FLAT"
     record["status"] = "COMPLETED"
     record["mfe_pct"] = mfe
