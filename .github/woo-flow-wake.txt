@@ -20,3 +20,5 @@ Catch-up refresh requested on October 24, 2026 for market data through October 2
 Catch-up requested October 25, 2026: update FLOW ALERT LAB through October 23 trading session.
 
 Catch-up refresh requested 2026-10-27: update WOO FLOW, ALERT, LAB through the latest available Taiwan trading session (target 2026-10-26).
+
+Manual refresh requested 2026-10-28 Asia/Taipei: update WOO FLOW, ALERT, LAB through the latest available Taiwan trading session; refresh LAB open positions and performance even if there are no new signals.
